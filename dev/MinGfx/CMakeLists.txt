@@ -176,6 +176,11 @@ endif()
 # Windows specific
 if (WIN32)
   add_definitions(-DWIN32)
+
+  if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message(FATAL_ERROR
+        "You must use the 64 bit version of the compiler. Be sure to set the correct generator when configuring through CMake.")
+  endif()
 endif()
 
 
