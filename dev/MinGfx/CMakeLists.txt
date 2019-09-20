@@ -23,6 +23,11 @@ cmake_minimum_required (VERSION 3.9)
 # Search path for cmake support scripts
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
+IF(EXISTS /soft/gcc/7.1.0/Linux_x86_64/bin)
+  SET(CMAKE_C_COMPILER /soft/gcc/7.1.0/Linux_x86_64/bin/gcc)
+  SET(CMAKE_CXX_COMPILER /soft/gcc/7.1.0/Linux_x86_64/bin/g++)
+endif()
+
 # Version is <major>.<minor>.<patch>
 cmake_policy(SET CMP0048 NEW)  # Required for setting version number as part of the project() command
 project(MinGfx_Toolkit VERSION 1.0.0)
@@ -171,6 +176,11 @@ endif()
 # Windows specific
 if (WIN32)
   add_definitions(-DWIN32)
+
+  if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message(FATAL_ERROR
+        "You must use the 64 bit version of the compiler. Be sure to set the correct generator when configuring through CMake.")
+  endif()
 endif()
 
 

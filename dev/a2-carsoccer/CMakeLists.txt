@@ -13,9 +13,10 @@
 # !!!!!!!!!!!!! EDIT THE FOLLOWING LINE AS NEEDED !!!!!!!!!!!!! 
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../build/install ../..)
 
-
-
-
+IF(EXISTS /soft/gcc/7.1.0/Linux_x86_64/bin) 
+  SET(CMAKE_C_COMPILER /soft/gcc/7.1.0/Linux_x86_64/bin/gcc)
+  SET(CMAKE_CXX_COMPILER /soft/gcc/7.1.0/Linux_x86_64/bin/g++)
+endif()
 
 #### BASIC PROJECT SETUP ####
 
@@ -127,6 +128,11 @@ endif()
 # Windows specific
 if (WIN32)
   add_definitions(-DWIN32)
+
+  if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message(FATAL_ERROR
+        "You must use the 64 bit version of the compiler. Be sure to set the correct generator when configuring through CMake.")
+  endif()
 endif()
 
 
