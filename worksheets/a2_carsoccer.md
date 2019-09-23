@@ -56,7 +56,7 @@ write pseudocode to determine whether or not two spheres are intersecting
 
 ```
 bool sphereIntersection(Sphere s1, Sphere s2) {
-    float distSquare = Math.pow(s1.position.x-s2.position.x,2) + Math.pow(s1.position.y-s2.position.y,2) + Math.pow(s1.position.z-s2.position.z,2)
+float distSquare = Math.pow(s1.position.x-s2.position.x,2) + Math.pow(s1.position.y-s2.position.y,2) + Math.pow(s1.position.z-s2.position.z,2);
     if (distSquare > Math.pow(s1.radius+s2.radius,2) return False;
     else return True;
 }
