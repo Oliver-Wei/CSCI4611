@@ -43,7 +43,7 @@ s.position = s.position + velocity*dt;
 Then, plug the constants (`velocity` and `dt`) into the next frame position computation, and give the resultant (numeric) position as a Vector3:
 
 ```
-Vector3(20.0,20.0,20.0);
+Vector3(20.0, 20.0, 20.0);
 ```
 
 
