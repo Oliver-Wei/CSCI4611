@@ -24,6 +24,7 @@ public:
     /// car will go back to its starting position.
     void Reset() {
         position_ = Point3(0, size_[1]/2, 45);
+        angle_ = 0.0f;
     }
     
     float collision_radius() { return collision_radius_; }
@@ -33,12 +34,16 @@ public:
     Point3 position() { return position_; }
     void set_position(const Point3 &p) { position_ = p; }
     
+    float angle() { return angle_; }
+    void set_angle(float angle) { angle_ = angle; }
+    
 private:
     // You will probably need to store some additional data here, e.g., speed.
     
     Vector3 size_;
     float collision_radius_;
     Point3 position_;
+    float angle_;
 };
 
 #endif

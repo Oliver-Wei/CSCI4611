@@ -75,6 +75,7 @@ void CarSoccer::DrawUsingOpenGL() {
     Color carcol(0.8, 0.2, 0.2);
     Matrix4 Mcar =
         Matrix4::Translation(car_.position() - Point3(0,0,0)) *
+        Matrix4::RotationY(car_.angle()) *
         Matrix4::Scale(car_.size()) *
         Matrix4::Scale(Vector3(0.5,0.5,0.5));
     quickShapes_.DrawCube(modelMatrix_ * Mcar, viewMatrix_, projMatrix_, carcol);
