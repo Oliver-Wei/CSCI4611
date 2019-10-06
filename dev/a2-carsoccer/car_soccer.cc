@@ -34,6 +34,41 @@ Vector2 CarSoccer::joystick_direction() {
 void CarSoccer::OnSpecialKeyDown(int key, int scancode, int modifiers) {
     if (key == GLFW_KEY_SPACE) {
         // Here's where you could call some form of launch_ball();
+        srand((unsigned)time(NULL));
+        ball_.Reset();
+        car_.Reset();
+    }
+    if (key == GLFW_KEY_LEFT) {
+        car_.turn_left();
+        
+    }
+    if (key == GLFW_KEY_RIGHT) {
+        car_.turn_right();
+        
+    }
+    if (key == GLFW_KEY_UP) {
+        car_.speed_up();
+    }
+    if (key == GLFW_KEY_DOWN) {
+        car_.speed_down();
+        
+    }
+}
+
+void CarSoccer::OnSpecialKeyRepeat (int key, int scancode, int modifiers) {
+    
+    if (key == GLFW_KEY_LEFT) {
+        car_.turn_left();
+    }
+    if (key == GLFW_KEY_RIGHT) {
+        car_.turn_right();
+    }
+    if (key == GLFW_KEY_UP) {
+        car_.speed_up();
+    }
+    if (key == GLFW_KEY_DOWN) {
+        car_.speed_down();
+        
     }
 }
 
@@ -42,6 +77,107 @@ void CarSoccer::UpdateSimulation(double timeStep) {
     // Here's where you shound do your "simulation", updating the positions of the
     // car and ball as needed and checking for collisions.  Filling this routine
     // in is the main part of the assignment.
+    Color ballcol(1,1,1);
+    
+    if (ball_.position().y() < 20 - ball_.radius()) {
+        if (ball_.position().z() - ball_.radius() <= -50) {
+            if (ball_.position().x() > -10 && ball_.position().x() < 10) {
+                ball_.Reset();
+                car_.Reset();
+            }
+        }
+        else if (ball_.position().z() + ball_.radius() >= 50) {
+            if (ball_.position().x() > -10 && ball_.position().x() < 10) {
+                ball_.Goal();
+                car_.Reset();
+            }
+        }
+    }
+    
+    if (ball_.position().y() + ball_.radius() >= 35) {
+        
+        //ceiling
+        
+        ball_.Collision_with_wall(2);
+        
+    }
+    else if (ball_.position().y() - ball_.radius() <= 0) {
+        
+        //ground
+        
+        ball_.Collision_with_wall(3);
+    }
+    
+    else if (ball_.position().x() - ball_.radius() <= -40) {
+        
+        // left
+        
+        ball_.Collision_with_wall(0);
+        
+    }
+    
+    else if (ball_.position().x() + ball_.radius() >= 40) {
+        
+        // right
+        
+        ball_.Collision_with_wall(1);
+    }
+    
+    else if (ball_.position().z() + ball_.radius() >= 50) {
+        
+        // back
+        
+        ball_.Collision_with_wall(5);
+    }
+    
+    else if (ball_.position().z() - ball_.radius() <= -50) {
+        
+        // front
+        
+        ball_.Collision_with_wall(4);
+    }
+    
+    if ((ball_.position()-car_.position()).Length() <= ball_.radius() + car_.collision_radius()) {
+        
+        float sum_of_radius = ball_.radius() + car_.collision_radius();
+        Vector3 collision_normal;
+        collision_normal = (ball_.position() - car_.position()).ToUnit();
+        
+        ball_.ball_collision_with_car(collision_normal, car_.velocity(), car_.position(), sum_of_radius);
+    }
+    
+    
+    ball_.gravity_acc(timeStep);
+    ball_.friction();
+    ball_.move(timeStep);  // problem collision
+    
+    
+    Color carcol(0.8, 0.2, 0.2);
+    
+    car_.move(timeStep);
+    if (car_.position().x() - car_.collision_radius() <= -40){
+        
+        //left wall
+        car_.Collision_with_wall(0);
+        
+    }
+    else if (car_.position().x() + car_.collision_radius() >= 40){
+        
+        //right wall
+        car_.Collision_with_wall(1);
+        
+    }
+    if (car_.position().z() - car_.collision_radius() <= -50){
+        
+        //front wall
+        car_.Collision_with_wall(2);
+        
+    }
+    else if (car_.position().z() + car_.collision_radius() >= 50) {
+        
+        //back wall
+        car_.Collision_with_wall(3);
+    }
     
 }
 
@@ -75,9 +211,11 @@ void CarSoccer::DrawUsingOpenGL() {
     Color carcol(0.8, 0.2, 0.2);
     Matrix4 Mcar =
         Matrix4::Translation(car_.position() - Point3(0,0,0)) *
+        Matrix4::Rotation(Point3(0,0,0), Vector3(0,1,0), car_.angle()) *
         Matrix4::Scale(car_.size()) *
-        Matrix4::Scale(Vector3(0.5,0.5,0.5));
+        Matrix4::Scale(Vector3(0.5,0.5,0.5)) ;
     quickShapes_.DrawCube(modelMatrix_ * Mcar, viewMatrix_, projMatrix_, carcol);
+    quickShapes_.DrawArrow(modelMatrix_, viewMatrix_, projMatrix_, carcol,car_.position(),car_.velocity(),0.1);
     
     
     // Draw the ball
@@ -86,6 +224,7 @@ void CarSoccer::DrawUsingOpenGL() {
         Matrix4::Translation(ball_.position() - Point3(0,0,0)) *
         Matrix4::Scale(Vector3(ball_.radius(), ball_.radius(), ball_.radius()));
     quickShapes_.DrawSphere(modelMatrix_ * Mball, viewMatrix_, projMatrix_, ballcol);
+    quickShapes_.DrawArrow(modelMatrix_, viewMatrix_, projMatrix_, ballcol,ball_.position(),ball_.velocity(),0.1);
     
     
     // Draw the ball's shadow -- this is a bit of a hack, scaling Y by zero
@@ -99,6 +238,58 @@ void CarSoccer::DrawUsingOpenGL() {
     quickShapes_.DrawSphere(modelMatrix_ * Mshadow, viewMatrix_, projMatrix_, shadowcol);
     
     
-    // You should add drawing the goals and the boundary of the playing area
-    // using quickShapes_.DrawLines()
+//    // You should add drawing the goals and the boundary of the playing area
+//    // using quickShapes_.DrawLines()
+    
+    Color line(1, 1, 1);
+    std::vector<Point3> Right_part;
+    Right_part.push_back(Point3(40, 0, -50));
+    Right_part.push_back(Point3(40, 35, -50));
+    Right_part.push_back(Point3(40, 35, 50));
+    Right_part.push_back(Point3(40, 0, 50));
+    quickShapes_.DrawLines(modelMatrix_, viewMatrix_, projMatrix_, line, Right_part, QuickShapes::LinesType::LINE_LOOP, 0.1);
+    
+    std::vector<Point3> Down_part;
+    Down_part.push_back(Point3(-40, 0, 50));
+    Down_part.push_back(Point3(-40, 35, 50));
+    Down_part.push_back(Point3(40, 35, 50));
+    Down_part.push_back(Point3(40, 0, 50));
+    quickShapes_.DrawLines(modelMatrix_, viewMatrix_, projMatrix_, line, Down_part, QuickShapes::LinesType::LINE_LOOP, 0.1);
+
+    std::vector<Point3> Left_part;
+    Left_part.push_back(Point3(-40, 0, 50));
+    Left_part.push_back(Point3(-40, 35, 50));
+    Left_part.push_back(Point3(-40, 35, -50));
+    Left_part.push_back(Point3(-40, 0, -50));
+    quickShapes_.DrawLines(modelMatrix_, viewMatrix_, projMatrix_, line, Left_part, QuickShapes::LinesType::LINE_LOOP, 0.1);
+
+    std::vector<Point3> Upper_part;
+    Upper_part.push_back(Point3(-40, 35, -50));
+    Upper_part.push_back(Point3(-40, 0, -50));
+    Upper_part.push_back(Point3(40, 0, -50));
+    Upper_part.push_back(Point3(40, 35, -50));
+    quickShapes_.DrawLines(modelMatrix_, viewMatrix_, projMatrix_, line, Upper_part, QuickShapes::LinesType::LINE_LOOP, 0.1);
+
+    std::vector<Point3> Upper_Goal;
+    Color upper_goal(0,0.5,0.5);
+    int upper_goal_x;
+    int upper_goal_y;
+    for (upper_goal_x = -10;upper_goal_x <= 10;upper_goal_x = upper_goal_x + 1) {
+        quickShapes_.DrawLineSegment(modelMatrix_, viewMatrix_, projMatrix_, upper_goal, Point3(upper_goal_x, 10, -50), Point3(upper_goal_x, 0, -50), 0.1);
+    }
+    for (upper_goal_y = 0;upper_goal_y <= 10;upper_goal_y = upper_goal_y + 1) {
+        quickShapes_.DrawLineSegment(modelMatrix_, viewMatrix_, projMatrix_, upper_goal, Point3(-10, upper_goal_y, -50), Point3(10, upper_goal_y, -50), 0.1);
+    }
+    
+    std::vector<Point3> Down_Goal;
+    Color down_goal(0.7,0.5,0);
+    int down_goal_x;
+    int down_goal_y;
+    for (down_goal_x = -10;down_goal_x <= 10;down_goal_x = down_goal_x + 1) {
+        quickShapes_.DrawLineSegment(modelMatrix_, viewMatrix_, projMatrix_, down_goal, Point3(down_goal_x, 10, 50), Point3(down_goal_x, 0, 50), 0.1);
+    }
+    for (down_goal_y = 0;down_goal_y <= 10;down_goal_y = down_goal_y + 1) {
+        quickShapes_.DrawLineSegment(modelMatrix_, viewMatrix_, projMatrix_, down_goal, Point3(-10, down_goal_y, 50), Point3(10, down_goal_y, 50), 0.1);
+    }
+
 }

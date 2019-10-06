@@ -19,6 +19,7 @@ public:
     
     /// This is called when special keys like SPACEBAR are pressed
     void OnSpecialKeyDown(int key, int scancode, int modifiers);
+    void OnSpecialKeyRepeat (int key, int scancode, int modifiers);
 
     /// This is called once each frame.  dt is "delta time", the time elapsed
     /// since the last call.
