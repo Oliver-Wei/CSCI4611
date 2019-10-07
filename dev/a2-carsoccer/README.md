@@ -108,7 +108,7 @@ When the ball collides with the car, the collision normal should be calculated a
 
 3. Car
 
-Besides the position, size and collision radius of the ball, in order to simulate the movement of the ball, it has four main properties, `velocity_` (a vector), `velocity_direction_` (a unit vector showing the direction of the velocity) and `velocity_magnitude_` (a float number represents the speed of the velocity), and `velocity_angle_` (a float number helps identify the orientation of the car).
+Besides the position, size and collision radius of the car, in order to simulate the movement of the car, it has four main properties, `velocity_` (a vector), `velocity_direction_` (a unit vector showing the direction of the velocity) and `velocity_magnitude_` (a float number represents the speed of the velocity), and `velocity_angle_` (a float number helps identify the orientation of the car).
 
 The function `float angle() {return velocity_angle_;}` gives us the orientation of the car and the following codes show how I draw the car according to its position and orientation.
 
