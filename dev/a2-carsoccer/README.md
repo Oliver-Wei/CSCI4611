@@ -23,10 +23,10 @@ I use the same method to draw a grid of lines for each goal.
     int upper_goal_x;
     int upper_goal_y;
     for (upper_goal_x = -10;upper_goal_x <= 10;upper_goal_x = upper_goal_x + 1) {
-    quickShapes_.DrawLineSegment(modelMatrix_, viewMatrix_, projMatrix_, upper_goal, Point3(upper_goal_x, 10, -50), Point3(upper_goal_x, 0, -50), 0.1);
+        quickShapes_.DrawLineSegment(modelMatrix_, viewMatrix_, projMatrix_, upper_goal, Point3(upper_goal_x, 10, -50), Point3(upper_goal_x, 0, -50), 0.1);
     }
     for (upper_goal_y = 0;upper_goal_y <= 10;upper_goal_y = upper_goal_y + 1) {
-    quickShapes_.DrawLineSegment(modelMatrix_, viewMatrix_, projMatrix_, upper_goal, Point3(-10, upper_goal_y, -50), Point3(10, upper_goal_y, -50), 0.1);
+        quickShapes_.DrawLineSegment(modelMatrix_, viewMatrix_, projMatrix_, upper_goal, Point3(-10, upper_goal_y, -50), Point3(10, upper_goal_y, -50), 0.1);
     }
 
 2. Ball
@@ -106,7 +106,7 @@ When the ball collides with the car, the collision normal should be calculated a
     }
 
 
-2. Car
+3. Car
 
 Besides the position, size and collision radius of the ball, in order to simulate the movement of the ball, it has four main properties, `velocity_` (a vector), `velocity_direction_` (a unit vector showing the direction of the velocity) and `velocity_magnitude_` (a float number represents the speed of the velocity), and `velocity_angle_` (a float number helps identify the orientation of the car).
 
