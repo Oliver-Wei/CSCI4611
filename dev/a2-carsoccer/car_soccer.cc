@@ -34,7 +34,6 @@ Vector2 CarSoccer::joystick_direction() {
 void CarSoccer::OnSpecialKeyDown(int key, int scancode, int modifiers) {
     if (key == GLFW_KEY_SPACE) {
         // Here's where you could call some form of launch_ball();
-        srand((unsigned)time(NULL));
         ball_.Reset();
         car_.Reset();
     }
@@ -77,8 +76,11 @@ void CarSoccer::UpdateSimulation(double timeStep) {
     // Here's where you shound do your "simulation", updating the positions of the
     // car and ball as needed and checking for collisions.  Filling this routine
     // in is the main part of the assignment.
-    Color ballcol(1,1,1);
     
+    ball_.gravity_acc(timeStep);
+    ball_.move(timeStep);
+    
+    // Goal
     if (ball_.position().y() < 20 - ball_.radius()) {
         if (ball_.position().z() - ball_.radius() <= -50) {
             if (ball_.position().x() > -10 && ball_.position().x() < 10) {
@@ -147,13 +149,6 @@ void CarSoccer::UpdateSimulation(double timeStep) {
     }
     
     
-    ball_.gravity_acc(timeStep);
-    ball_.friction();
-    ball_.move(timeStep);  // problem collision
-    
-    
-    Color carcol(0.8, 0.2, 0.2);
-    
     car_.move(timeStep);
     if (car_.position().x() - car_.collision_radius() <= -40){
         
@@ -215,7 +210,7 @@ void CarSoccer::DrawUsingOpenGL() {
         Matrix4::Scale(car_.size()) *
         Matrix4::Scale(Vector3(0.5,0.5,0.5)) ;
     quickShapes_.DrawCube(modelMatrix_ * Mcar, viewMatrix_, projMatrix_, carcol);
-    quickShapes_.DrawArrow(modelMatrix_, viewMatrix_, projMatrix_, carcol,car_.position(),car_.velocity(),0.1);
+    quickShapes_.DrawArrow(modelMatrix_, viewMatrix_, projMatrix_, carcol,car_.position(),5*car_.velocity_direction(),0.1);
     
     
     // Draw the ball
@@ -224,7 +219,7 @@ void CarSoccer::DrawUsingOpenGL() {
         Matrix4::Translation(ball_.position() - Point3(0,0,0)) *
         Matrix4::Scale(Vector3(ball_.radius(), ball_.radius(), ball_.radius()));
     quickShapes_.DrawSphere(modelMatrix_ * Mball, viewMatrix_, projMatrix_, ballcol);
-    quickShapes_.DrawArrow(modelMatrix_, viewMatrix_, projMatrix_, ballcol,ball_.position(),ball_.velocity(),0.1);
+//    quickShapes_.DrawArrow(modelMatrix_, viewMatrix_, projMatrix_, ballcol,ball_.position(),ball_.velocity(),0.1);
     
     
     // Draw the ball's shadow -- this is a bit of a hack, scaling Y by zero

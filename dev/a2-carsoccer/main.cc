@@ -6,7 +6,6 @@
 
 int main(int argc, const char *argv[]) {
     CarSoccer app;
-    srand((unsigned)time(NULL));
     app.Run();
     return 0;
 }

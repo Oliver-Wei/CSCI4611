@@ -5,6 +5,8 @@
 #define BALL_H_
 
 #include <mingfx.h>
+#include <time.h>
+#include <stdlib.h>
 
 /// Small data structure for a ball
 class Ball {
@@ -23,6 +25,7 @@ public:
     void Reset() {
         position_ = Point3(0, radius_, 0);
         set_position(Point3(0,5,0));
+        srand(time(NULL));
         Vector3 velocity_ = Vector3(rand() % 31 - 15, rand() % 5 + 5, rand() % 31 - 15);
         Vector3 acceleration_ = Vector3(0,0,0);
     }
@@ -90,8 +93,8 @@ public:
             position_ = Point3(position_.x(),position_.y(), 50 - radius());
             velocity_ = velocity_ - 2 * ((velocity_.Dot(norm)) * norm);
             
-            
         }
+        friction();
     }
     
     void ball_collision_with_car(Vector3 norm, Vector3 car_velocity, Point3 car_position, float sum_of_radius) {
@@ -101,6 +104,7 @@ public:
         }
         Vector3 vel_rev = velocity_ - car_velocity;
         velocity_ = car_velocity + vel_rev - 2 * ((vel_rev.Dot(norm)) * norm);
+        friction();
         
     }
     
@@ -116,7 +120,7 @@ public:
     
     void friction() {
         
-        velocity_ = velocity_ * 0.9999;
+        velocity_ = velocity_ * 0.8;
         
     }
     
@@ -137,7 +141,6 @@ private:
     
     Point3 position_ = Point3(0, 10, 0);
     float radius_;
-//    Vector3 velocity_ = Vector3(rand() % 3 -1, rand() % 5 , rand() % 3 -1);
     Vector3 velocity_ = Vector3(rand() % 31 - 15, rand() % 5 + 5, rand() % 31 - 15);
     Vector3 acceleration_ = Vector3(0,0,0);
 };
