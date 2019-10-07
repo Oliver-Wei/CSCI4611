@@ -59,7 +59,7 @@ The initial position and velocity of the ball is defined as follows. Its initial
 The `velocity_` of the ball is decreased by a constant factor when it bounces.
 
     void friction() {
-        velocity_ = velocity_ * 0.99;
+        velocity_ = velocity_ * 0.8;
     }
 
 a. Collision with walls, ceiling and ground
@@ -87,7 +87,7 @@ An example of how the ball collides with "walls". In this example, the `position
                 
 b. Collision with the car:
     
-When the ball collides with the car, the collision normal should be calculated and the collision process should be simulated as illustrated in the handout. The codes below can also incorporate the velocity of the car into the way the ball responds when hit by using `vel_rel` (the relative velocity of the ball). I also make a small modification that the ball will first be placed to a nearest position that will not be influnced by the collision and then collision happens. 
+When the ball collides with the car, the collision normal should be calculated and the collision process should be simulated as illustrated in the handout. The codes below can also incorporate the velocity of the car into the way the ball responds when hit by using `vel_rel` (the relative velocity of the ball). I also make a small modification that the ball is placed to the nearest position to the place where two objects just contacts, and then collision happens.
 
     if ((ball_.position()-car_.position()).Length() <= ball_.radius() + car_.collision_radius()) {
         float sum_of_radius = ball_.radius() + car_.collision_radius();
@@ -141,7 +141,7 @@ When the `Reset()` is called, the car should return to its inital state.
         velocity_ = Vector3(0,0,0);
     }
     
-The car model is mainly simulated as described in the handout. The car should always move forwards or backwards relative to the direction it’s facing, but never sideways. The up and down arrow keys should change its speed, while left and right should turn it at a rate proportional to its speed. My model may be slightly different. When the car moves forwards, an arrow shows the moving direction of it. When the car moves backwards, an arraw shows the opposite of the moving direction of it. When the left or right arrow key is pressed, the car always turns left or right like a real car no matter it moves forwards or backwards. The functions of how the car turns left and right and how it moves forwards and backwards are shown below. I also set a speed limit to the car.
+The car model is mainly simulated as described in the handout. The car should always move forwards or backwards relative to the direction it’s facing, but never sideways. The up and down arrow keys should change its speed, while left and right should turn it at a rate proportional to its speed. My model may be slightly different. When the car moves forwards, an arrow shows the moving direction of it. When the car moves backwards, an arraw shows the opposite direction of the moving direction of it. When the left or right arrow key is pressed, the car always turns left or right like a real car no matter it moves forwards or backwards. The functions of how the car turns left and right and how it moves forwards and backwards are shown below. I also set a speed limit to the car.
 
     void turn_left() {
         //turn it at a rate proportional to its speed
