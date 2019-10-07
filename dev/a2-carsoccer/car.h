@@ -52,38 +52,20 @@ public:
     }
     
     void turn_left() {
-        
+        //turn it at a rate proportional to its speed
         Vector3 turn_left_direction = (velocity_direction_.Cross(Vector3(0,-1,0)));
-        if (velocity_magnitude_ < 0){
-            //turn it at a rate proportional to its speed
-            velocity_direction_ = -(velocity_direction_ + turn_left_direction * velocity_magnitude_/10).ToUnit();
-        }
-        else {
-            //turn it at a rate proportional to its speed
-            velocity_direction_ = (velocity_direction_ + turn_left_direction * velocity_magnitude_/10).ToUnit();
-        }
-        
+        velocity_direction_ = (velocity_direction_ + turn_left_direction * velocity_magnitude_/10).ToUnit();
         velocity_ = velocity_direction_ * velocity_magnitude_;
         velocity_angle_ = velocity_angle_ + PI/2 - acos(velocity_direction_.Dot(turn_left_direction));
-        
     }
     
     
     void turn_right() {
-        // velocity_direction_
+        //turn it at a rate proportional to its speed
         Vector3 turn_right_direction = (velocity_direction_.Cross(Vector3(0,1,0)));
-        if (velocity_magnitude_ < 0){
-            //turn it at a rate proportional to its speed
-            velocity_direction_ = -(velocity_direction_ + turn_right_direction * velocity_magnitude_/10).ToUnit();
-        }
-        else {
-            //turn it at a rate proportional to its speed
-            velocity_direction_ = (velocity_direction_ + turn_right_direction * velocity_magnitude_/10).ToUnit();
-        }
+        velocity_direction_ = (velocity_direction_ + turn_right_direction * velocity_magnitude_/10).ToUnit();
         velocity_ = velocity_direction_ * velocity_magnitude_;
         velocity_angle_ = velocity_angle_ - (PI/2 - acos(velocity_direction_.Dot(turn_right_direction)));
-        
-        
     }
     
     void speed_up() {
@@ -108,21 +90,15 @@ public:
             velocity_ = velocity_ - 2 * ((velocity_.Dot(norm)) * norm);
             if (velocity_magnitude_ > 0){
                 velocity_direction_ = velocity_.ToUnit();
-                if (velocity_direction_.z() <= 0) {
-                    velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
-                else {
-                    velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
             }
-            else{
+            else {
                 velocity_direction_ = -velocity_.ToUnit();
-                if (velocity_direction_.z() >= 0) {
-                    velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
-                else {
-                    velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
+            }
+            if (velocity_direction_.z() <= 0) {
+                velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
+            }
+            else {
+                velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
             }
         }
         if (wall_index == 1) { //collision with right wall
@@ -131,21 +107,15 @@ public:
             velocity_ = velocity_ - 2 * ((velocity_.Dot(norm)) * norm);
             if (velocity_magnitude_ > 0){
                 velocity_direction_ = velocity_.ToUnit();
-                if (velocity_direction_.z() <= 0) {
-                    velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
-                else {
-                    velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
             }
-            else{
+            else {
                 velocity_direction_ = -velocity_.ToUnit();
-                if (velocity_direction_.z() >= 0) {
-                    velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
-                else {
-                    velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
+            }
+            if (velocity_direction_.z() <= 0) {
+                velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
+            }
+            else {
+                velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
             }
             
         }
@@ -155,21 +125,15 @@ public:
             velocity_ = velocity_ - 2 * ((velocity_.Dot(norm)) * norm);
             if (velocity_magnitude_ > 0){
                 velocity_direction_ = velocity_.ToUnit();
-                if (velocity_direction_.x() <= 0) {
-                    velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
-                else {
-                    velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
             }
             else {
                 velocity_direction_ = -velocity_.ToUnit();
-                if (velocity_direction_.x() >= 0) {
-                    velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
-                else {
-                    velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
+            }
+            if (velocity_direction_.x() <= 0) {
+                velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
+            }
+            else {
+                velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
             }
 
             
@@ -180,21 +144,15 @@ public:
             velocity_ = velocity_ - 2 * ((velocity_.Dot(norm)) * norm);
             if (velocity_magnitude_ > 0){
                 velocity_direction_ = velocity_.ToUnit();
-                if (velocity_direction_.x() <= 0) {
-                    velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
-                else {
-                    velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
             }
             else {
                 velocity_direction_ = -velocity_.ToUnit();
-                if (velocity_direction_.x() >= 0) {
-                    velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
-                else {
-                    velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
-                }
+            }
+            if (velocity_direction_.x() <= 0) {
+                velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
+            }
+            else {
+                velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
             }
 
         }

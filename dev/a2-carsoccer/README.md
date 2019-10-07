@@ -52,7 +52,7 @@ The initial position and velocity of the ball is defined as follows. Its initial
     void Reset() {
         position_ = Point3(0, radius_, 0);
         set_position(Point3(0,5,0));
-        Vector3 velocity_ = Vector3(rand() % 31 - 15, rand() % 5 + 5, rand() % 31 - 15);
+        Vector3 velocity_ = Vector3(rand() % 31 - 15, rand() % 5 + 5, rand() % 31);
         Vector3 acceleration_ = Vector3(0,0,0);
     }
     
@@ -141,33 +141,32 @@ When the `Reset()` is called, the car should return to its inital state.
         velocity_ = Vector3(0,0,0);
     }
     
-The car model is mainly simulated as described in the handout. The car should always move forwards or backwards relative to the direction it’s facing, but never sideways. The up and down arrow keys should change its speed, while left and right should turn it at a rate proportional to its speed. My model may be slightly different. When the car moves forwards, an arrow shows the moving direction of it. When the car moves backwards, an arraw shows the opposite direction of the moving direction of it. When the left or right arrow key is pressed, the car always turns left or right about the moving direction no matter it moves forwards or backwards. An example of how the car turns left is shown below. I also set a speed limit to the car as shown below.
+The car model is mainly simulated as described in the handout. The car should always move forwards or backwards relative to the direction it’s facing, but never sideways. The up and down arrow keys should change its speed, while left and right should turn it at a rate proportional to its speed. My model may be slightly different. When the car moves forwards, an arrow shows the moving direction of it. When the car moves backwards, an arraw shows the opposite of the moving direction of it. When the left or right arrow key is pressed, the car always turns left or right like a real car no matter it moves forwards or backwards. The functions of how the car turns left and right and how it moves forwards and backwards are shown below. I also set a speed limit to the car.
 
     void turn_left() {
-
+        //turn it at a rate proportional to its speed
         Vector3 turn_left_direction = (velocity_direction_.Cross(Vector3(0,-1,0)));
-        if (velocity_magnitude_ < 0){
-            //turn it at a rate proportional to its speed
-            velocity_direction_ = -(velocity_direction_ + turn_left_direction * velocity_magnitude_/10).ToUnit();
-            
-        }
-        else {
-            //turn it at a rate proportional to its speed
-            velocity_direction_ = (velocity_direction_ + turn_left_direction * velocity_magnitude_/10).ToUnit();
-        }
-
+        velocity_direction_ = (velocity_direction_ + turn_left_direction * velocity_magnitude_/10).ToUnit();
         velocity_ = velocity_direction_ * velocity_magnitude_;
         velocity_angle_ = velocity_angle_ + PI/2 - acos(velocity_direction_.Dot(turn_left_direction));
-
     }
-    
+
+
+    void turn_right() {
+        //turn it at a rate proportional to its speed
+        Vector3 turn_right_direction = (velocity_direction_.Cross(Vector3(0,1,0)));
+        velocity_direction_ = (velocity_direction_ + turn_right_direction * velocity_magnitude_/10).ToUnit();
+        velocity_ = velocity_direction_ * velocity_magnitude_;
+        velocity_angle_ = velocity_angle_ - (PI/2 - acos(velocity_direction_.Dot(turn_right_direction)));
+    }
+
     void speed_up() {
         if (velocity_magnitude_ < 20){
             velocity_magnitude_ = velocity_magnitude_ + 1;
         }
         velocity_ = velocity_magnitude_ * velocity_direction_;
     }
-    
+
     void speed_down() {
         if (velocity_magnitude_ > -20) {
             velocity_magnitude_ = velocity_magnitude_ - 1;
@@ -179,7 +178,7 @@ The car model is mainly simulated as described in the handout. The car should al
     
 b. Collision with the wall
 
-When the car hits the walls, it follows the similar behavior as the ball. No matter how the car hits the wall, with its head or tail, the behaviors are the same.
+When the car hits the walls, it follows the similar behavior as the ball. No matter how the car hits the wall, with its head or tail, the behaviors are the same. Here is an example of how the car hits the left wall.
     
     if (wall_index == 0) { //collision with left wall
         Vector3 norm = Vector3(1, 0, 0);
@@ -187,21 +186,15 @@ When the car hits the walls, it follows the similar behavior as the ball. No mat
         velocity_ = velocity_ - 2 * ((velocity_.Dot(norm)) * norm);
         if (velocity_magnitude_ > 0){
             velocity_direction_ = velocity_.ToUnit();
-            if (velocity_direction_.z() <= 0) {
-                velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
-            }
-            else {
-                velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
-            }
         }
-        else{
+        else {
             velocity_direction_ = -velocity_.ToUnit();
-            if (velocity_direction_.z() >= 0) {
-                velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
-            }
-            else {
-                velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
-            }
+        }
+        if (velocity_direction_.z() <= 0) {
+            velocity_angle_ = velocity_angle_ - (PI - 2*acos(velocity_direction_.Dot(norm)));
+        }
+        else {
+            velocity_angle_ = velocity_angle_ + (PI - 2*acos(velocity_direction_.Dot(norm)));
         }
     }
     friction();

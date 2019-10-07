@@ -5,8 +5,8 @@
 #define BALL_H_
 
 #include <mingfx.h>
-#include <time.h>
-#include <stdlib.h>
+#include <ctime>
+#include <cstdlib>
 
 /// Small data structure for a ball
 class Ball {
@@ -25,8 +25,7 @@ public:
     void Reset() {
         position_ = Point3(0, radius_, 0);
         set_position(Point3(0,5,0));
-        srand(time(NULL));
-        Vector3 velocity_ = Vector3(rand() % 31 - 15, rand() % 5 + 5, rand() % 31 - 15);
+        Vector3 velocity_ = Vector3(rand() % 31 - 15, rand() % 5 + 5, rand() % 31);
         Vector3 acceleration_ = Vector3(0,0,0);
     }
 

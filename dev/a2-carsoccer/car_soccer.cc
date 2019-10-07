@@ -219,7 +219,6 @@ void CarSoccer::DrawUsingOpenGL() {
         Matrix4::Translation(ball_.position() - Point3(0,0,0)) *
         Matrix4::Scale(Vector3(ball_.radius(), ball_.radius(), ball_.radius()));
     quickShapes_.DrawSphere(modelMatrix_ * Mball, viewMatrix_, projMatrix_, ballcol);
-//    quickShapes_.DrawArrow(modelMatrix_, viewMatrix_, projMatrix_, ballcol,ball_.position(),ball_.velocity(),0.1);
     
     
     // Draw the ball's shadow -- this is a bit of a hack, scaling Y by zero
