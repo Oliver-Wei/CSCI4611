@@ -45,7 +45,6 @@ public:
     
     void set_position(const Point3 &p) { position_ = p; }
     
-<<<<<<< HEAD
     void move(double timeStep) {
         
         position_ = position_ + velocity_ * timeStep ;
@@ -166,6 +165,7 @@ public:
         velocity_ = velocity_ * 0.8;
         
     }
+    
     
     
 private:
