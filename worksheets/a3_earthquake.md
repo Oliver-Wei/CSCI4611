@@ -32,6 +32,14 @@ normalizes the values in an arbitrary vector (list) and returns a new vector:
 ```
 std::vector<float> normalizeList(std::vector<float> quakeList) {
   /* --- Fill in your algorithm here --- */
+  std::vector<float> normalized;
+  float minMagnitude = *std::min_element(quakeList.begin(), quakeList.end());
+  float maxMagnitude = *std::max_element(quakeList.begin(), quakeList.end());
+  float quakeListRange =  maxMagnitude - minMagnitude;
+  for (int i = 0; i < quakeList.size(); i++) {
+    normalized.push_back(quakeList[i]/quakeListRange);
+  }
+  return normalized;
 }
 ```
 
@@ -44,14 +52,15 @@ and 1.0.
 std::vector<float> quakes = {0.0, 2.3, 5.1, 1.1, 7.6, 1.7};
 std::vector<float> normalizedQuakes = normalizeList(quakes);
 
-for (int i = 0; i < normalized.size(); i++) {
-    std::cout << normalized[i] << " ";
+for (int i = 0; i < normalizedQuakes.size(); i++) {
+    std::cout << normalizedQuakes[i] << " ";
 }
 std::cout << std::endl;
 ```
 
 ```
 /* --- Fill in the expected output here (e.g. 0.0, 0.5, 0.5, 1.0, 0.5, 0.12, 0.6) --- */
+{0, 0.302632, 0.671053, 0.144737, 1, 0.223684}
 ```
 
 ## Q2: Constructing a mesh
