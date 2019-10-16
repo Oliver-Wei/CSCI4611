@@ -17,6 +17,10 @@ Earth::Earth() {
 Earth::~Earth() {
 }
 
+float lerp(float x, float y, float a){
+    return x + a*(y-x);
+}
+
 void Earth::Init(const std::vector<std::string> &search_path) {
     // init shader program
     shader_.Init();
@@ -25,33 +29,44 @@ void Earth::Init(const std::vector<std::string> &search_path) {
     earth_tex_.InitFromFile(Platform::FindFile("earth-2k.png", search_path));
 
     // init geometry
-    const int nslices = 10;
-    const int nstacks = 10;
+    const int nslices = 18;
+    const int nstacks = 9;
 
     // TODO: This is where you need to set the vertices and indiceds for earth_mesh_.
 
     // As a demo, we'll add a square with 2 triangles.
-    std::vector<unsigned int> indices;
-    std::vector<Point3> vertices;
-
-    // four vertices
-    vertices.push_back(Point3(0,0,0));
-    vertices.push_back(Point3(1,0,0));
-    vertices.push_back(Point3(1,1,0));
-    vertices.push_back(Point3(0,1,0));
-
-    // indices into the arrays above for the first triangle
-    indices.push_back(0);
-    indices.push_back(1);
-    indices.push_back(2);
     
-    // indices for the second triangle, note some are reused
-    indices.push_back(0);
-    indices.push_back(2);
-    indices.push_back(3);
+    for (int i=0; i < nslices+1; i++){
+        for (int j = 0; j < nstacks+1; j++){
+            vertices.push_back(Point3(lerp(-M_PI,M_PI,i * 1.0/nslices),lerp(-M_PI/2,M_PI/2,j * 1.0/nstacks),0));
+            sphere_vertices.push_back(LatLongToSphere(lerp(-M_PI/2,M_PI/2,j * 1.0/nstacks),lerp(-M_PI,M_PI,i * 1.0/nslices)));
+            tex_coords.push_back(Point2(1-i * 1.0/nslices,1-j * 1.0/nstacks));
+//            std::vector<Vector3> normals;
+        }
+    }
+//    for (int i=0; i < nslices+1; i++){
+//        for (int j = 0; j < nstacks+1; j++){
+
+    for (int i = 0; i < nslices;i++){
+        for (int j = 0; j < nstacks; j++){
+            indices.push_back(0+j+(nstacks+1)*i);
+            indices.push_back(nstacks+1+j+(nstacks+1)*i);
+            indices.push_back(1+j+(nstacks+1)*i);
+        }
+    }
+    
+    for (int i = 0; i < nslices;i++){
+        for (int j = 0; j < nstacks; j++){
+            indices.push_back(1+j+(nstacks+1)*i);
+            indices.push_back(nstacks+1+j+(nstacks+1)*i);
+            indices.push_back(nstacks+2+j+(nstacks+1)*i);
+        }
+
+    }
     
     earth_mesh_.SetVertices(vertices);
     earth_mesh_.SetIndices(indices);
+    earth_mesh_.SetTexCoords(0, tex_coords);
     earth_mesh_.UpdateGPUMemory();
 }
 
@@ -86,13 +101,18 @@ void Earth::Draw(const Matrix4 &model_matrix, const Matrix4 &view_matrix, const 
 Point3 Earth::LatLongToSphere(double latitude, double longitude) const {
     // TODO: We recommend filling in this function to put all your
     // lat,long --> sphere calculations in one place.
-    return Point3(0,0,0);
+    float x = cos(latitude) * sin(longitude);
+    float y = sin(latitude);
+    float z = cos(latitude)*cos(longitude);
+    
+    return Point3(x,y,z);
 }
 
 Point3 Earth::LatLongToPlane(double latitude, double longitude) const {
     // TODO: We recommend filling in this function to put all your
     // lat,long --> plane calculations in one place.
-    return Point3(0,0,0);
+    
+    return Point3(longitude,latitude,0);
 }
 
 
@@ -112,3 +132,18 @@ void Earth::DrawDebugInfo(const Matrix4 &model_matrix, const Matrix4 &view_matri
     }
 }
 
+void Earth::Update(bool global_mode){
+    if (global_mode){
+        earth_mesh_.SetVertices(sphere_vertices);
+        earth_mesh_.SetIndices(indices);
+        earth_mesh_.SetTexCoords(0, tex_coords);
+        earth_mesh_.UpdateGPUMemory();
+    }
+    else{
+        earth_mesh_.SetVertices(vertices);
+        earth_mesh_.SetIndices(indices);
+        earth_mesh_.SetTexCoords(0, tex_coords);
+        earth_mesh_.UpdateGPUMemory();
+    }
+
+}

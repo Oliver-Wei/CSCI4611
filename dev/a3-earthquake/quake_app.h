@@ -54,6 +54,7 @@ private:
 
     // true if drawing debugging info for the mesh
     bool debug_mode_;
+    bool global_mode_ = false;
     
     // Database through which you can access the earthquakes
     EarthquakeDatabase quake_db_;
