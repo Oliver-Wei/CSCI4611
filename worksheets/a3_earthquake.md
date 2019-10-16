@@ -37,7 +37,7 @@ std::vector<float> normalizeList(std::vector<float> quakeList) {
   float maxMagnitude = *std::max_element(quakeList.begin(), quakeList.end());
   float quakeListRange =  maxMagnitude - minMagnitude;
   for (int i = 0; i < quakeList.size(); i++) {
-    normalized.push_back(quakeList[i]/quakeListRange);
+    normalized.push_back((quakeList[i]-minMagnitude)/quakeListRange);
   }
   return normalized;
 }
