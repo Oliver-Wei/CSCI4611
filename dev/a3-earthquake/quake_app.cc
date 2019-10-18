@@ -119,8 +119,6 @@ void QuakeApp::UpdateSimulation(double dt)  {
     
     // TODO: Any animation, morphing, rotation of the earth, or other things that should
     // be updated once each frame would go here.
-//    global_model_matrix = global_model_matrix*rotation_matrix;
-    
     
     if (flag){
         if (global_mode_){
@@ -130,21 +128,14 @@ void QuakeApp::UpdateSimulation(double dt)  {
             alpha -= 0.02;
         }
         alpha = GfxMath::Clamp(alpha, 0, 1);
-        flag = earth_.UpdateEarthMesh(global_model_matrix, flag, alpha); // mark
-        
+        flag = earth_.UpdateEarthMesh(global_model_matrix, flag, alpha);
     }
     else{
         if (global_mode_){
             rotation_angle = playback_scale_ * dt / PLAYBACK_WINDOW * 360 /500;
-            rotation_matrix = Matrix4::Rotation(Point3(0,0,0), Vector3(0,1,0), rotation_angle);
-            global_model_matrix = global_model_matrix*rotation_matrix;
+            global_model_matrix = global_model_matrix*Matrix4::Rotation(Point3(0,0,0), Vector3(0,1,0), rotation_angle);
         }
     }
-//    std::vector<Point3> sphere_points = earth_.GetPoints();
-
-//    }
-//    std::vector<Point3> points = earth_.GetPoints();
-//    std::vector<Point3> plane_model_points = model_matrix * earth_.GetPoints();
 }
 
 
@@ -171,22 +162,16 @@ void QuakeApp::DrawUsingOpenGL() {
     
     // Draw the earth
     
-    if (global_mode_){
-        if (!flag){
-            earth_.Draw(global_model_matrix, view_matrix_, proj_matrix_);
-        }
-        else {
-            earth_.Draw(model_matrix, view_matrix_, proj_matrix_);
-        }
+    if (flag){
+        earth_.Draw(model_matrix, view_matrix_, proj_matrix_);
     }
-    else {
-        if (flag){
-            earth_.Draw(model_matrix, view_matrix_, proj_matrix_);
+    else{
+        if (global_mode_){
+            earth_.Draw(global_model_matrix, view_matrix_, proj_matrix_);
         }
         else{
             earth_.Draw(model_matrix, view_matrix_, proj_matrix_);
         }
-//        earth_.Draw(global_model_matrix, view_matrix_, proj_matrix_);
     }
     
     
@@ -201,18 +186,15 @@ void QuakeApp::DrawUsingOpenGL() {
     int earthquake_start_index = quake_db_.FindMostRecentQuake(Date(one_year_ago_time_));
     int earthquake_end_index = quake_db_.FindMostRecentQuake(Date(current_time_));
     
-//    Color earthquake(0.8, 0.2, 0.2);
-//     draw earth_quakes
     if (flag){
         for (int i = earthquake_start_index; i < earthquake_end_index; i++){
             double longitude_ = quake_db_.earthquake(i).longitude();
             double latitude_ = quake_db_.earthquake(i).latitude();
             double scaled_magnitude_ = (quake_db_.earthquake(i).magnitude()-quake_db_.min_magnitude())/(quake_db_.max_magnitude() - quake_db_.min_magnitude());
             Color earthquake(scaled_magnitude_, 0.7, 0);
-            Point3 sphere_position = earth_.LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
+            Point3 sphere_position = global_model_matrix*earth_.LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
             Point3 plane_position = earth_.LatLongToPlane(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
             Point3 transition_position = plane_position.Lerp(sphere_position,alpha);
-            
             Matrix4 Mquakes =
                 Matrix4::Translation(transition_position - Point3(0,0,0)) *
                 Matrix4::Scale(Vector3(scaled_magnitude_*0.05, scaled_magnitude_*0.05, scaled_magnitude_*0.05));
@@ -226,11 +208,11 @@ void QuakeApp::DrawUsingOpenGL() {
                 double latitude_ = quake_db_.earthquake(i).latitude();
                 double scaled_magnitude_ = (quake_db_.earthquake(i).magnitude()-quake_db_.min_magnitude())/(quake_db_.max_magnitude() - quake_db_.min_magnitude());
                 Color earthquake(scaled_magnitude_, 0.7, 0);
-                Point3 sphere_position = earth_.LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
+                Point3 sphere_position = global_model_matrix*earth_.LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
                 Matrix4 Mquakes =
                     Matrix4::Translation(sphere_position - Point3(0,0,0)) *
                     Matrix4::Scale(Vector3(scaled_magnitude_*0.05, scaled_magnitude_*0.05, scaled_magnitude_*0.05));
-                quick_shapes_.DrawSphere(global_model_matrix * Mquakes, view_matrix_, proj_matrix_, earthquake);
+                quick_shapes_.DrawSphere(model_matrix * Mquakes, view_matrix_, proj_matrix_, earthquake);
             }
         }
         else{

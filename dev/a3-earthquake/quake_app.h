@@ -70,7 +70,6 @@ private:
     Matrix4 proj_matrix_;
     Matrix4 model_matrix;
     Matrix4 global_model_matrix;
-    Matrix4 rotation_matrix;
     
     float rotation_angle;
     float alpha;

@@ -38,8 +38,6 @@ public:
     
     bool UpdateEarthMesh(Matrix4 rotation_matrix, bool flag, float alpha);
     
-    std::vector<Point3> GetPoints();
-    
 protected:
     
     // Stores the earth texture map
@@ -57,10 +55,8 @@ protected:
     
     std::vector<unsigned int> indices;
     std::vector<Point3> sphere_vertices;
-    std::vector<Point3> rotation_sphere_vertices;
     std::vector<Point3> vertices;
     std::vector<Vector3> sphere_normals;
-    std::vector<Vector3> rotation_sphere_normals;
     std::vector<Vector3> normals;
     std::vector<Point2> tex_coords;
 };

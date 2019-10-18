@@ -83,18 +83,18 @@ To find the earthquakes that have happened in the past one year of the current v
     int earthquake_start_index = quake_db_.FindMostRecentQuake(Date(one_year_ago_time_));
     int earthquake_end_index = quake_db_.FindMostRecentQuake(Date(current_time_));
 
-Then the program will draw each earthquake between this two indices. After the longitude and the latitude of the earthquake is found, the position of the earthquake in the sphere is mapped by using LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_)) if the earth is in the global view. If the earth is in the plane view, the position of the earthquake in the plane is mapped by using earth_.LatLongToPlane(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_)). Normalize the magnitude of the quake and draw the quake at corresponding position using the sphere whose red channel value and size is proportional to the magnitude.
+Then the program will draw each earthquake between this two indices. After the longitude and the latitude of the earthquake is found, the position of the earthquake in the sphere is mapped by using LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_)) if the earth is in the global view. Normalize the magnitude of the quake and draw the quake at corresponding position using the sphere whose red channel value and size is proportional to the magnitude.
 
     for (int i = earthquake_start_index; i < earthquake_end_index; i++){
         double longitude_ = quake_db_.earthquake(i).longitude();
         double latitude_ = quake_db_.earthquake(i).latitude();
         double scaled_magnitude_ = (quake_db_.earthquake(i).magnitude()-quake_db_.min_magnitude())/(quake_db_.max_magnitude() - quake_db_.min_magnitude());
         Color earthquake(scaled_magnitude_, 0.7, 0);
-        Point3 sphere_position = earth_.LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
+        Point3 sphere_position = global_model_matrix*earth_.LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
         Matrix4 Mquakes =
             Matrix4::Translation(sphere_position - Point3(0,0,0)) *
             Matrix4::Scale(Vector3(scaled_magnitude_*0.05, scaled_magnitude_*0.05, scaled_magnitude_*0.05));
-        quick_shapes_.DrawSphere(global_model_matrix * Mquakes, view_matrix_, proj_matrix_, earthquake);
+        quick_shapes_.DrawSphere(model_matrix * Mquakes, view_matrix_, proj_matrix_, earthquake);
     }
 
     Point3 Earth::LatLongToSphere(double latitude, double longitude) const {
@@ -107,10 +107,40 @@ Then the program will draw each earthquake between this two indices. After the l
         return Point3(x,y,z);
     }
 
+If the earth is in the plane view, the position of the earthquake in the plane is mapped by using earth_.LatLongToPlane(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_)). Normalize the magnitude of the quake and draw the quake at corresponding position using the sphere whose red channel value and size is proportional to the magnitude.
+
+    for (int i = earthquake_start_index; i < earthquake_end_index; i++){
+        double longitude_ = quake_db_.earthquake(i).longitude();
+        double latitude_ = quake_db_.earthquake(i).latitude();
+        double scaled_magnitude_ = (quake_db_.earthquake(i).magnitude()-quake_db_.min_magnitude())/(quake_db_.max_magnitude() - quake_db_.min_magnitude());
+        Color earthquake(scaled_magnitude_, 0.7, 0);
+        Point3 plane_position = earth_.LatLongToPlane(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
+        Matrix4 Mquakes =
+            Matrix4::Translation(plane_position - Point3(0,0,0)) *
+            Matrix4::Scale(Vector3(scaled_magnitude_*0.05, scaled_magnitude_*0.05, scaled_magnitude_*0.05));
+        quick_shapes_.DrawSphere(model_matrix * Mquakes, view_matrix_, proj_matrix_, earthquake);
+    }
+
     Point3 Earth::LatLongToPlane(double latitude, double longitude) const {
         // TODO: We recommend filling in this function to put all your
         // lat,long --> plane calculations in one place.
         return Point3(longitude,latitude,0);
+    }
+
+If it's in the transistion state between global mode and plane mode, the position of the earthquake is somewhere between two corresponding positions.
+
+    for (int i = earthquake_start_index; i < earthquake_end_index; i++){
+        double longitude_ = quake_db_.earthquake(i).longitude();
+        double latitude_ = quake_db_.earthquake(i).latitude();
+        double scaled_magnitude_ = (quake_db_.earthquake(i).magnitude()-quake_db_.min_magnitude())/(quake_db_.max_magnitude() - quake_db_.min_magnitude());
+        Color earthquake(scaled_magnitude_, 0.7, 0);
+        Point3 sphere_position = global_model_matrix*earth_.LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
+        Point3 plane_position = earth_.LatLongToPlane(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
+        Point3 transition_position = plane_position.Lerp(sphere_position,alpha);
+        Matrix4 Mquakes =
+            Matrix4::Translation(transition_position - Point3(0,0,0)) *
+            Matrix4::Scale(Vector3(scaled_magnitude_*0.05, scaled_magnitude_*0.05, scaled_magnitude_*0.05));
+        quick_shapes_.DrawSphere(model_matrix * Mquakes, view_matrix_, proj_matrix_, earthquake);
     }
 
 3. Transform between global mode and plane mode, smooth morph
@@ -152,8 +182,8 @@ Once the Globe button is pressed, I will set a flag to realize smooth morph by r
             std::vector<Point3> transition_vertices;
             std::vector<Vector3> transition_normals;
             for (int i = 0; i < vertices.size(); i++){
-                transition_vertices.push_back( (vertices.at(i).Lerp(sphere_vertices.at(i),alpha))); // mark
-                transition_normals.push_back(normals.at(i).Lerp(sphere_normals.at(i),alpha)); // mark
+                transition_vertices.push_back( vertices.at(i).Lerp(rotation_matrix*(sphere_vertices.at(i)),alpha));
+            transition_normals.push_back(rotation_matrix*(normals.at(i)).Lerp(sphere_normals.at(i),alpha));
             }
             earth_mesh_.SetVertices(transition_vertices);
             earth_mesh_.SetIndices(indices);
@@ -174,14 +204,12 @@ In QuakeApp::UpdateSimulation(double dt), alpha will be repeatedly updated once 
             alpha -= 0.02;
         }
         alpha = GfxMath::Clamp(alpha, 0, 1);
-        flag = earth_.UpdateEarthMesh(global_model_matrix, flag, alpha); // mark
-        
+        flag = earth_.UpdateEarthMesh(global_model_matrix, flag, alpha);
     }
     else{
         if (global_mode_){
             rotation_angle = playback_scale_ * dt / PLAYBACK_WINDOW * 360 /500;
-            rotation_matrix = Matrix4::Rotation(Point3(0,0,0), Vector3(0,1,0), rotation_angle);
-            global_model_matrix = global_model_matrix*rotation_matrix;
+            global_model_matrix = global_model_matrix*Matrix4::Rotation(Point3(0,0,0), Vector3(0,1,0), rotation_angle);
         }
     }
 

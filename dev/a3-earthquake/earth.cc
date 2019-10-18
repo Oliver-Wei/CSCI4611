@@ -131,9 +131,6 @@ void Earth::DrawDebugInfo(const Matrix4 &model_matrix, const Matrix4 &view_matri
         quick_shapes_.DrawLines(model_matrix, view_matrix, proj_matrix,
             Color(1,1,0), loop, QuickShapes::LinesType::LINE_LOOP, 0.005);
     }
-//    for (int i = 0; i < vertices.size(); i++){
-//        quick_shapes_.DrawArrow(model_matrix, view_matrix, proj_matrix, Color(1,1,0), sphere_vertices.at(i), 0.1*sphere_normals.at(i), 0.005);
-//    }
 }
 
 bool Earth::UpdateEarthMesh(Matrix4 rotation_matrix, bool flag, float alpha){
@@ -157,8 +154,8 @@ bool Earth::UpdateEarthMesh(Matrix4 rotation_matrix, bool flag, float alpha){
         std::vector<Point3> transition_vertices;
         std::vector<Vector3> transition_normals;
         for (int i = 0; i < vertices.size(); i++){
-            transition_vertices.push_back( (vertices.at(i).Lerp(sphere_vertices.at(i),alpha))); // mark
-            transition_normals.push_back(normals.at(i).Lerp(sphere_normals.at(i),alpha)); // mark
+            transition_vertices.push_back( vertices.at(i).Lerp(rotation_matrix*(sphere_vertices.at(i)),alpha));
+            transition_normals.push_back(rotation_matrix*(normals.at(i)).Lerp(sphere_normals.at(i),alpha));
         }
         earth_mesh_.SetVertices(transition_vertices);
         earth_mesh_.SetIndices(indices);
@@ -169,6 +166,3 @@ bool Earth::UpdateEarthMesh(Matrix4 rotation_matrix, bool flag, float alpha){
     return flag;
 }
 
-std::vector<Point3> Earth::GetPoints(){
-    return sphere_vertices;
-}
