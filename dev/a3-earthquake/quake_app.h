@@ -68,6 +68,13 @@ private:
     // Sets up the computer graphics camera
     Matrix4 view_matrix_;
     Matrix4 proj_matrix_;
+    Matrix4 model_matrix;
+    Matrix4 global_model_matrix;
+    Matrix4 rotation_matrix;
+    
+    float rotation_angle;
+    float alpha;
+    bool flag;
     
     // Gui elements
     nanogui::Button  *globe_btn_;

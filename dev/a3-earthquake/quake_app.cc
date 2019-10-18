@@ -12,6 +12,7 @@ const int PLAYBACK_WINDOW = 12 * 28 * 24 * 60 * 60;
 
 using namespace std;
 
+
 QuakeApp::QuakeApp() : GraphicsApp(1280,720, "Earthquake"),
     playback_scale_(15000000.0), debug_mode_(false)
 {
@@ -79,7 +80,14 @@ void QuakeApp::OnLeftMouseDrag(const Point2 &pos, const Vector2 &delta) {
 void QuakeApp::OnGlobeBtnPressed() {
     // TODO: This is where you can switch between flat earth mode and globe mode
     global_mode_ = !global_mode_;
-    earth_.Update(global_mode_);
+    flag = true;
+    if (global_mode_){
+        globe_btn_-> setCaption("Map");
+        global_model_matrix = model_matrix;
+    }
+    else{
+        globe_btn_-> setCaption("Globe");
+    }
 }
 
 void QuakeApp::OnDebugBtnPressed() {
@@ -111,7 +119,32 @@ void QuakeApp::UpdateSimulation(double dt)  {
     
     // TODO: Any animation, morphing, rotation of the earth, or other things that should
     // be updated once each frame would go here.
+//    global_model_matrix = global_model_matrix*rotation_matrix;
     
+    
+    if (flag){
+        if (global_mode_){
+            alpha += 0.02;
+        }
+        else{
+            alpha -= 0.02;
+        }
+        alpha = GfxMath::Clamp(alpha, 0, 1);
+        flag = earth_.UpdateEarthMesh(global_model_matrix, flag, alpha); // mark
+        
+    }
+    else{
+        if (global_mode_){
+            rotation_angle = playback_scale_ * dt / PLAYBACK_WINDOW * 360 /500;
+            rotation_matrix = Matrix4::Rotation(Point3(0,0,0), Vector3(0,1,0), rotation_angle);
+            global_model_matrix = global_model_matrix*rotation_matrix;
+        }
+    }
+//    std::vector<Point3> sphere_points = earth_.GetPoints();
+
+//    }
+//    std::vector<Point3> points = earth_.GetPoints();
+//    std::vector<Point3> plane_model_points = model_matrix * earth_.GetPoints();
 }
 
 
@@ -135,10 +168,28 @@ void QuakeApp::DrawUsingOpenGL() {
     // You can leave this as the identity matrix and we will have a fine view of
     // the earth.  If you want to add any rotation or other animation of the
     // earth, the model_matrix is where you would apply that.
-    Matrix4 model_matrix;
     
     // Draw the earth
-    earth_.Draw(model_matrix, view_matrix_, proj_matrix_);
+    
+    if (global_mode_){
+        if (!flag){
+            earth_.Draw(global_model_matrix, view_matrix_, proj_matrix_);
+        }
+        else {
+            earth_.Draw(model_matrix, view_matrix_, proj_matrix_);
+        }
+    }
+    else {
+        if (flag){
+            earth_.Draw(model_matrix, view_matrix_, proj_matrix_);
+        }
+        else{
+            earth_.Draw(model_matrix, view_matrix_, proj_matrix_);
+        }
+//        earth_.Draw(global_model_matrix, view_matrix_, proj_matrix_);
+    }
+    
+    
     if (debug_mode_) {
         earth_.DrawDebugInfo(model_matrix, view_matrix_, proj_matrix_);
     }
@@ -151,33 +202,51 @@ void QuakeApp::DrawUsingOpenGL() {
     int earthquake_end_index = quake_db_.FindMostRecentQuake(Date(current_time_));
     
 //    Color earthquake(0.8, 0.2, 0.2);
-    if (!global_mode_){
+//     draw earth_quakes
+    if (flag){
         for (int i = earthquake_start_index; i < earthquake_end_index; i++){
             double longitude_ = quake_db_.earthquake(i).longitude();
             double latitude_ = quake_db_.earthquake(i).latitude();
             double scaled_magnitude_ = (quake_db_.earthquake(i).magnitude()-quake_db_.min_magnitude())/(quake_db_.max_magnitude() - quake_db_.min_magnitude());
-            Color earthquake(scaled_magnitude_, 0, 0);
+            Color earthquake(scaled_magnitude_, 0.7, 0);
+            Point3 sphere_position = earth_.LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
             Point3 plane_position = earth_.LatLongToPlane(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
+            Point3 transition_position = plane_position.Lerp(sphere_position,alpha);
+            
             Matrix4 Mquakes =
-                Matrix4::Translation(plane_position - Point3(0,0,0)) *
+                Matrix4::Translation(transition_position - Point3(0,0,0)) *
                 Matrix4::Scale(Vector3(scaled_magnitude_*0.05, scaled_magnitude_*0.05, scaled_magnitude_*0.05));
             quick_shapes_.DrawSphere(model_matrix * Mquakes, view_matrix_, proj_matrix_, earthquake);
         }
     }
     else{
-        for (int i = earthquake_start_index; i < earthquake_end_index; i++){
-            double longitude_ = quake_db_.earthquake(i).longitude();
-            double latitude_ = quake_db_.earthquake(i).latitude();
-            double scaled_magnitude_ = (quake_db_.earthquake(i).magnitude()-quake_db_.min_magnitude())/(quake_db_.max_magnitude() - quake_db_.min_magnitude());
-            Color earthquake(scaled_magnitude_, 0, 0);
-            Point3 plane_position = earth_.LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
-            Matrix4 Mquakes =
-                Matrix4::Translation(plane_position - Point3(0,0,0)) *
-                Matrix4::Scale(Vector3(scaled_magnitude_*0.05, scaled_magnitude_*0.05, scaled_magnitude_*0.05));
-            quick_shapes_.DrawSphere(model_matrix * Mquakes, view_matrix_, proj_matrix_, earthquake);
+        if (global_mode_){
+            for (int i = earthquake_start_index; i < earthquake_end_index; i++){
+                double longitude_ = quake_db_.earthquake(i).longitude();
+                double latitude_ = quake_db_.earthquake(i).latitude();
+                double scaled_magnitude_ = (quake_db_.earthquake(i).magnitude()-quake_db_.min_magnitude())/(quake_db_.max_magnitude() - quake_db_.min_magnitude());
+                Color earthquake(scaled_magnitude_, 0.7, 0);
+                Point3 sphere_position = earth_.LatLongToSphere(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
+                Matrix4 Mquakes =
+                    Matrix4::Translation(sphere_position - Point3(0,0,0)) *
+                    Matrix4::Scale(Vector3(scaled_magnitude_*0.05, scaled_magnitude_*0.05, scaled_magnitude_*0.05));
+                quick_shapes_.DrawSphere(global_model_matrix * Mquakes, view_matrix_, proj_matrix_, earthquake);
+            }
+        }
+        else{
+            for (int i = earthquake_start_index; i < earthquake_end_index; i++){
+                double longitude_ = quake_db_.earthquake(i).longitude();
+                double latitude_ = quake_db_.earthquake(i).latitude();
+                double scaled_magnitude_ = (quake_db_.earthquake(i).magnitude()-quake_db_.min_magnitude())/(quake_db_.max_magnitude() - quake_db_.min_magnitude());
+                Color earthquake(scaled_magnitude_, 0.7, 0);
+                Point3 plane_position = earth_.LatLongToPlane(GfxMath::ToRadians(latitude_), GfxMath::ToRadians(longitude_));
+                Matrix4 Mquakes =
+                    Matrix4::Translation(plane_position - Point3(0,0,0)) *
+                    Matrix4::Scale(Vector3(scaled_magnitude_*0.05, scaled_magnitude_*0.05, scaled_magnitude_*0.05));
+                quick_shapes_.DrawSphere(model_matrix * Mquakes, view_matrix_, proj_matrix_, earthquake);
+            }
         }
     }
-
 }
 
 
