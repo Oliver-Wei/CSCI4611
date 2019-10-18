@@ -155,7 +155,7 @@ bool Earth::UpdateEarthMesh(Matrix4 rotation_matrix, bool flag, float alpha){
         std::vector<Vector3> transition_normals;
         for (int i = 0; i < vertices.size(); i++){
             transition_vertices.push_back( vertices.at(i).Lerp(rotation_matrix*(sphere_vertices.at(i)),alpha));
-            transition_normals.push_back(rotation_matrix*(normals.at(i)).Lerp(sphere_normals.at(i),alpha));
+                transition_normals.push_back(rotation_matrix*(normals.at(i)).Lerp(sphere_normals.at(i),alpha));
         }
         earth_mesh_.SetVertices(transition_vertices);
         earth_mesh_.SetIndices(indices);
