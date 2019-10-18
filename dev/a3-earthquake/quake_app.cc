@@ -122,10 +122,10 @@ void QuakeApp::UpdateSimulation(double dt)  {
     
     if (flag){
         if (global_mode_){
-            alpha += 0.02;
+            alpha += 0.01;
         }
         else{
-            alpha -= 0.02;
+            alpha -= 0.01;
         }
         alpha = GfxMath::Clamp(alpha, 0, 1);
         flag = earth_.UpdateEarthMesh(global_model_matrix, flag, alpha);
