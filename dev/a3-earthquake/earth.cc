@@ -29,8 +29,8 @@ void Earth::Init(const std::vector<std::string> &search_path) {
     earth_tex_.InitFromFile(Platform::FindFile("earth-2k.png", search_path));
 
     // init geometry
-    const int nslices = 18;
-    const int nstacks = 9;
+    const int nslices = 36;
+    const int nstacks = 18;
 
     // TODO: This is where you need to set the vertices and indiceds for earth_mesh_.
 
