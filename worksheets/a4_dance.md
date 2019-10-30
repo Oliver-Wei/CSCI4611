@@ -37,7 +37,8 @@ The initial model is located at the origin:
 --------------------------------------------------------------------------------
 
 Include your pictures for each diagram here (there should be 5 total)
-(./img/house_1.jpeg)
+
+(./img/house_1.png)
 
 --------------------------------------------------------------------------------
 
