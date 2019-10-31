@@ -25,7 +25,7 @@ Matrix4 rotation = Matrix4::RotateZ(GfxMath::toRadians(45.0));
 
 ```
 // Transformation compositions
-Matrix4 final1 = translation * scale * rotation;
+Matrix4 final1 = translation * rotation * scale;
 
 Matrix4 final2 = rotation * scale * translation;
 ```
