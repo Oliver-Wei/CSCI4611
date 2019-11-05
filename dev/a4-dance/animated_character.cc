@@ -197,34 +197,111 @@ void AnimatedCharacter::DrawBoneRecursive(const std::string &bone_name, const Ma
     
     // TODO: Eventually, you'll want to draw something different depending on which part
     // of the body is being drawn.  An if statement like this is an easy way to do that.
+    
     if (bone_name == "lhipjoint" || bone_name == "rhipjoint") {
+        Matrix4 hipjoint = Matrix4::Scale(Vector3(0.1, 0.1, 0.1));
+        quick_shapes_.DrawSphere(ctm * hipjoint, view_matrix, proj_matrix, Color(0, 0, 1));
     }
     if (bone_name == "lfemur" || bone_name == "rfemur") {
+        Matrix4 upper_femur_scale = Matrix4::Scale(Vector3(0.1, 0.13, 0.1));
+        Matrix4 upper_femur_rotate = Matrix4::RotationZ(GfxMath::ToRadians(40.0));
+        quick_shapes_.DrawSphere(ctm * upper_femur_scale * upper_femur_rotate, view_matrix, proj_matrix, Color(0,0,1));
     }
     if (bone_name == "ltibia" || bone_name == "rtibia") {
+        if (bone_name == "ltibia") {
+            Matrix4 tibia_scale = Matrix4::Scale(Vector3(0.05, 0.25, 0.05));
+            Matrix4 tibia_trans = Matrix4::Translation(Vector3(0, -1, 0));
+            Matrix4 tibia_rotate = Matrix4::RotationX(GfxMath::ToRadians(30.0));
+            quick_shapes_.DrawSphere(ctm * tibia_scale * tibia_rotate * tibia_trans, view_matrix, proj_matrix, Color(0, 0, 1));
+        }
+        else{
+            Matrix4 tibia_scale = Matrix4::Scale(Vector3(0.05, 0.25, 0.05));
+            Matrix4 tibia_trans = Matrix4::Translation(Vector3(0, -1, 0));
+            Matrix4 tibia_rotate = Matrix4::RotationX(GfxMath::ToRadians(-30.0));
+            quick_shapes_.DrawSphere(ctm * tibia_scale * tibia_rotate * tibia_trans, view_matrix, proj_matrix, Color(0, 0, 1));
+        }
+        Matrix4 foot_scale = Matrix4::Scale(Vector3(0.05, 0.05, 0.05));
+        Matrix4 foot_trans = Matrix4::Translation(Vector3(-0.1, -9, 0.2));
+        quick_shapes_.DrawCube(ctm * foot_scale * foot_trans, view_matrix, proj_matrix, Color(0,1,0));
     }
     if (bone_name == "lfoot" || bone_name == "rfoot") {
     }
     if (bone_name == "ltoes" || bone_name == "rtoes") {
     }
     if (bone_name == "lowerback") {
+        Matrix4 lowerback_scale = Matrix4::Scale(Vector3(0.4, 0.2, 0.4));
+        Matrix4 lowerback_trans = Matrix4::Translation(Vector3(0, -1.2, 0));
+        quick_shapes_.DrawCone(ctm * lowerback_scale * lowerback_trans, view_matrix, proj_matrix, Color(0, 0, 1));
     }
     if (bone_name == "upperback") {
+        quick_shapes_.DrawLineSegment(ctm * S, view_matrix, proj_matrix, Color(0,0,0), Point3(0,0.7,0), Point3(0,-0.7,0), 0.1);
     }
     if (bone_name == "thorax") {
+        quick_shapes_.DrawLineSegment(ctm * S, view_matrix, proj_matrix, Color(0,0,0), Point3(0,0.7,0), Point3(0,-0.7,0), 0.1);
     }
     if (bone_name == "lowerneck" || bone_name == "upperneck") {
+        quick_shapes_.DrawLineSegment(ctm * S, view_matrix, proj_matrix, Color(0,0,0), Point3(0,0.7,0), Point3(0,-0.7,0), 0.1);
     }
     if (bone_name == "head") {
+        Matrix4 head = Matrix4::Scale(Vector3(0.1, 0.1, 0.1));
+        quick_shapes_.DrawCylinder(ctm * head, view_matrix, proj_matrix, Color(100,0,0));
+        
+        Matrix4 nose_scale = Matrix4::Scale(Vector3(0.05, 0.05, 0.1));
+        Matrix4 nose_rotate = Matrix4::RotationX(GfxMath::ToRadians(90.0));
+        Matrix4 nose_trans = Matrix4::Translation(Vector3(0, 0.8, -0.3));
+        quick_shapes_.DrawCone(ctm * nose_scale * nose_rotate * nose_trans, view_matrix, proj_matrix, Color(0, 0, 1));
     }
     if (bone_name == "lclavicle" || bone_name == "rclavicle") {
+        Matrix4 calvicle = Matrix4::Scale(Vector3(0.1, 0.1, 0.1));
+        quick_shapes_.DrawSphere(ctm * calvicle, view_matrix, proj_matrix, Color(1, 0, 0));
     }
     if (bone_name == "lhumerus" || bone_name == "rhumerus" || bone_name == "lradius" || bone_name == "rradius") {
+        if (bone_name == "lhumerus" || bone_name == "rhumerus") {
+            Matrix4 humerus = Matrix4::Scale(Vector3(0.15, 0.1, 0.1));
+            quick_shapes_.DrawSphere(ctm * humerus, view_matrix, proj_matrix, Color(1, 0, 0));
+        }
+        else if (bone_name == "lradius") {
+            Matrix4 radius_scale = Matrix4::Scale(Vector3(0.05,0.12, 0.05));
+            Matrix4 radius_rotate = Matrix4::RotationZ(GfxMath::ToRadians(90.0));
+            Matrix4 radius_trans = Matrix4::Translation(Vector3(0, 1, 0));
+            quick_shapes_.DrawSphere(ctm * radius_rotate * radius_scale * radius_trans, view_matrix, proj_matrix, Color(1,0,0));
+        }
+        else if (bone_name == "rradius") {
+            Matrix4 radius_scale = Matrix4::Scale(Vector3(0.05,0.12, 0.05));
+            Matrix4 radius_rotate = Matrix4::RotationZ(GfxMath::ToRadians(-90.0));
+            Matrix4 radius_trans = Matrix4::Translation(Vector3(0, 1, 0));
+            quick_shapes_.DrawSphere(ctm * radius_rotate * radius_scale * radius_trans, view_matrix, proj_matrix, Color(1,0,0));
+        }
     }
     if (bone_name == "lwrist" || bone_name == "rwrist") {
+        if (bone_name == "lwrist") {
+            Matrix4 wrist_scale = Matrix4::Scale(Vector3(0.12, 0.05, 0.05));
+            Matrix4 wrist_trans = Matrix4::Translation(Vector3(-0.7, 0, 0));
+            quick_shapes_.DrawSphere(ctm * wrist_scale * wrist_trans, view_matrix, proj_matrix, Color(1,0,0));
+        }
+        else if (bone_name == "rwrist") {
+            Matrix4 wrist_scale = Matrix4::Scale(Vector3(0.12, 0.05, 0.05));
+            Matrix4 wrist_trans = Matrix4::Translation(Vector3(0.7, 0, 0));
+            quick_shapes_.DrawSphere(ctm * wrist_scale * wrist_trans, view_matrix, proj_matrix, Color(1,0,0));
+        }
     }
     if (bone_name == "lhand" || bone_name == "rhand" || bone_name == "lthumb" || bone_name == "rthumb" || bone_name == "rfingers" || bone_name == "lfingers") {
+        if (bone_name == "lhand" || bone_name == "rhand") {
+            Matrix4 hand_scale = Matrix4::Scale(Vector3(0.05, 0.05, 0.05));
+            quick_shapes_.DrawSphere(ctm * hand_scale, view_matrix, proj_matrix, Color(1,0,0));
+        }
+        else if (bone_name == "lthumb" || bone_name == "rthumb") {
+            Matrix4 thumb_trans = Matrix4::Translation(Vector3(1,0,0));
+            Matrix4 thumb_scale = Matrix4::Scale(Vector3(0.02, 0.02, 0.02));
+            quick_shapes_.DrawSphere(ctm * thumb_scale * thumb_trans, view_matrix, proj_matrix, Color(0,1,0));
+        }
+        else if (bone_name == "rfingers" || bone_name == "lfingers") {
+            Matrix4 finger_scale = Matrix4::Scale(Vector3(0.01, 0.01, 0.01));
+            quick_shapes_.DrawSphere(ctm * finger_scale, view_matrix, proj_matrix, Color(0,0,1));
+        }
     }
+    
+     
     
     
     // Step 2: Draw the bone's children
@@ -239,6 +316,15 @@ void AnimatedCharacter::DrawBoneRecursive(const std::string &bone_name, const Ma
         DrawBoneRecursive(skeleton_.child_bone(bone_name, i), child_root_transform, view_matrix, proj_matrix);
     }
     **/
+    
+    CalcCurrentPose();
+
+    Matrix4 child_root_transform = ctm * skeleton_.RotAxesSpaceToBoneSpace(bone_name) * pose_.JointRotation(bone_name) * skeleton_.BoneSpaceToRotAxesSpace(bone_name) * skeleton_.BoneSpaceToChildrenSpace(bone_name);
+
+
+    for (int i=0; i<skeleton_.num_children(bone_name); i++) {
+        DrawBoneRecursive(skeleton_.child_bone(bone_name, i), child_root_transform, view_matrix, proj_matrix);
+    }
 }
 
 

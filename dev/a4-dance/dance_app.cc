@@ -63,8 +63,25 @@ DanceApp::DanceApp() : GraphicsApp(1280,768, "So You Think Ants Can Dance") {
     // 05_10.amc, 05_09.amc, 05_20.amc, and 05_06.amc -- you need to trim them
     // isolate the interesting portions of the motion.
     
+    ballet_special2_.LoadFromAMC(Platform::FindFile("05_10.amc", searchPath_), *ballet_ant_.skeleton_ptr());
+    ballet_special2_.TrimFront(288);
+    ballet_special2_.TrimBack(200);
+    ballet_special2_.CalcRelativeTranslations();
     
+    ballet_special3_.LoadFromAMC(Platform::FindFile("05_09.amc", searchPath_), *ballet_ant_.skeleton_ptr());
+    ballet_special3_.TrimFront(288);
+    ballet_special3_.TrimBack(200);
+    ballet_special3_.CalcRelativeTranslations();
     
+    ballet_special4_.LoadFromAMC(Platform::FindFile("05_20.amc", searchPath_), *ballet_ant_.skeleton_ptr());
+    ballet_special4_.TrimFront(288);
+    ballet_special4_.TrimBack(200);
+    ballet_special4_.CalcRelativeTranslations();
+    
+    ballet_special5_.LoadFromAMC(Platform::FindFile("05_06.amc", searchPath_), *ballet_ant_.skeleton_ptr());
+    ballet_special5_.TrimFront(288);
+    ballet_special5_.TrimBack(200);
+    ballet_special5_.CalcRelativeTranslations();
     
     
     // 3. Start the base loop motion
@@ -121,22 +138,22 @@ void DanceApp::OnMotion1BtnPressed() {
 
 void DanceApp::OnMotion2BtnPressed() {
     // TODO: add a call similar to this:
-    // ballet_ant_.OverlayClip(ballet_special2_, 100);
+     ballet_ant_.OverlayClip(ballet_special2_, 100);
 }
 
 void DanceApp::OnMotion3BtnPressed() {
     // TODO: add a call similar to this:
-    // ballet_ant_.OverlayClip(ballet_special3_, 100);
+     ballet_ant_.OverlayClip(ballet_special3_, 100);
 }
 
 void DanceApp::OnMotion4BtnPressed() {
     // TODO: add a call similar to this:
-    // ballet_ant_.OverlayClip(ballet_special4_, 100);
+     ballet_ant_.OverlayClip(ballet_special4_, 100);
 }
 
 void DanceApp::OnMotion5BtnPressed() {
     // TODO: add a call similar to this:
-    // ballet_ant_.OverlayClip(ballet_special5_, 100);
+     ballet_ant_.OverlayClip(ballet_special5_, 100);
 }
 
 void DanceApp::UpdateSimulation(double dt)  {
