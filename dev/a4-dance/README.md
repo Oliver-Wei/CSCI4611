@@ -15,13 +15,23 @@ I use the function DrawBoneRecursive(const std::string &bone_name, const Matrix4
 
 2. Draw an ant
 
-In addition, I use QuickShapes to draw some simple geometries like spheres, cubes, cylinders, cones to represent the body of the ants. For example, I use some spheres to represent the femur.
+In addition, I use QuickShapes to draw some simple geometries like spheres, cubes, cylinders, cones to represent the body of the ants. For example, I use some spheres to represent the femur and I use some different colors and shapes to draw the head.
 
 
     if (bone_name == "lfemur" || bone_name == "rfemur") {
         Matrix4 upper_femur_scale = Matrix4::Scale(Vector3(0.1, 0.13, 0.1));
         Matrix4 upper_femur_rotate = Matrix4::RotationZ(GfxMath::ToRadians(40.0));
         quick_shapes_.DrawSphere(ctm * upper_femur_scale * upper_femur_rotate, view_matrix, proj_matrix, Color(0,0,1));
+    }
+
+    if (bone_name == "head") {
+        Matrix4 head = Matrix4::Scale(Vector3(0.1, 0.1, 0.1));
+        quick_shapes_.DrawCylinder(ctm * head, view_matrix, proj_matrix, Color(100,0,0));
+        
+        Matrix4 nose_scale = Matrix4::Scale(Vector3(0.05, 0.05, 0.1));
+        Matrix4 nose_rotate = Matrix4::RotationX(GfxMath::ToRadians(90.0));
+        Matrix4 nose_trans = Matrix4::Translation(Vector3(0, 0.8, -0.3));
+        quick_shapes_.DrawCone(ctm * nose_scale * nose_rotate * nose_trans, view_matrix, proj_matrix, Color(0, 0, 1));
     }
 
 
