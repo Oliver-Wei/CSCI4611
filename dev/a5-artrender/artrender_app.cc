@@ -49,14 +49,16 @@ void ArtRenderApp::InitNanoGUI() {
     
     new nanogui::Label(window, "Rendering Style", "sans-bold");
     
-    nanogui::Button* btn1 = new nanogui::Button(window, "Phong Shading");
-    btn1->setCallback(std::bind(&ArtRenderApp::OnPhongBtnPressed, this));
+	nanogui::Button* btn1 = new nanogui::Button(window, "Gouraud Shading");
+	btn1->setCallback(std::bind(&ArtRenderApp::OnGouraudBtnPressed, this));
+
+    nanogui::Button* btn2 = new nanogui::Button(window, "Phong Shading");
+    btn2->setCallback(std::bind(&ArtRenderApp::OnPhongBtnPressed, this));
     
-    nanogui::Button* btn2 = new nanogui::Button(window, "Artsy Shading");
-    btn2->setCallback(std::bind(&ArtRenderApp::OnArtsyBtnPressed, this));
+    nanogui::Button* btn3 = new nanogui::Button(window, "Artsy Shading");
+    btn3->setCallback(std::bind(&ArtRenderApp::OnArtsyBtnPressed, this));
 	
-	nanogui::Button* btn3 = new nanogui::Button(window, "Gouraud Shading");
-    btn3->setCallback(std::bind(&ArtRenderApp::OnGouraudBtnPressed, this));
+
 
     
     new nanogui::Label(window, "Model", "sans-bold");

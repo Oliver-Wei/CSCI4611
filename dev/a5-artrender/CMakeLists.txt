@@ -88,6 +88,8 @@ set(EXTRAFILES
 set(SHADERFILES
     shaders/artsy.vert
     shaders/artsy.frag
+    shaders/gouraud.vert
+    shaders/gouraud.frag
     shaders/outline.vert
     shaders/outline.frag
     shaders/phong.vert
