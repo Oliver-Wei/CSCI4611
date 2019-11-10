@@ -37,7 +37,7 @@ out vec4 color;
 void main() {
     
     // vertex position in "eye space"
-    vec3 v;
+    vec3 v = (model_view_matrix * vec4(vertex,1)).xyz;
 
     // unit vector from the vertex to the light
     vec3 l;
