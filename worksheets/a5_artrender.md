@@ -44,7 +44,7 @@ normal and `vec3 nr` for the right normal, fill in the condition on the if
 statement:
 
 ```
-if (/* --- Fill this in --- */)
+if (dot(e, nl) * dot(e,nr) < 0.0)
 ```
 
 ### Q2.2
@@ -53,6 +53,7 @@ vectors be transformed to eye space using the `normal_matrix`?
 
 ```
 /* --- Write your answer here (yes / no) --- */
+yes
 ```
 
 ### Q2.3
@@ -63,4 +64,5 @@ space using the `normal_matrix`?
 
 ```
 /* --- Write your answer here (yes / no) --- */
+yes
 ```
