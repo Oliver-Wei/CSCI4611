@@ -64,5 +64,5 @@ space using the `normal_matrix`?
 
 ```
 /* --- Write your answer here (yes / no) --- */
-yes
+no
 ```
