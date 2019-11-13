@@ -34,8 +34,6 @@ out vec4 color;
 
 out vec2 tex_coords;
 
-
-
 void main() {
     
     // transoform the vertex position into "eye space"
@@ -64,4 +62,8 @@ void main() {
     
     // do the standard projection of the incoming vertex
     gl_Position = proj_matrix * model_view_matrix * vec4(vertex,1);
+    
+    vec3 vertex_on_unit_sphere = normalize(vertex);
+    tex_coords.s = asin(vertex_on_unit_sphere.x) / 3.14 + 0.5;
+    tex_coords.t = 1.0 - (asin(vertex_on_unit_sphere.y) / 3.14 + 0.5);
 }

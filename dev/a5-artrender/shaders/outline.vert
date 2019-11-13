@@ -18,5 +18,17 @@ layout(location = 2) in vec3 left_normal;
 layout(location = 3) in vec3 right_normal;
 
 void main() {
-    gl_Position = proj_matrix * model_view_matrix * vec4(vertex,1);
+    // unit vector from the vertex to the eye point, which is at 0,0,0 in "eye space"
+    vec3 e = (model_view_matrix * vec4(vertex,1)).xyz;
+    
+    vec3 final_vertex = vertex;
+    
+    vec3 nl = (normal_matrix * vec4(left_normal,1)).xyz;
+    vec3 nr = (normal_matrix * vec4(right_normal,1)).xyz;
+    
+    if (dot(e, nl) * dot(e, nr) < 0.0) {
+        final_vertex = vertex + thickness * normal;
+    }
+    
+    gl_Position = proj_matrix * model_view_matrix * vec4(final_vertex,1);
 }

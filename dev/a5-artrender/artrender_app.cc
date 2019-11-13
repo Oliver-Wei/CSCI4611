@@ -26,13 +26,13 @@ ArtRenderApp::ArtRenderApp() : GraphicsApp(1024,768, "Art Render"),
     
     // NOTE: YOU CAN COMMENT OUT SOME OF THESE IF THE APP IS LOADING TOO SLOWLY
     // THE MODEL_FILES ARRAY JUST NEEDS TO HOLD AT LEAST ONE MODEL.
-    model_files_.push_back("bunny.obj");
+//    model_files_.push_back("bunny.obj");
 //    model_files_.push_back("chamferedCube.obj");
 //    model_files_.push_back("cow.obj");
 //    model_files_.push_back("hippo.obj");
-//    model_files_.push_back("maxplanck.obj");
-//    model_files_.push_back("sphere.obj");
-//    model_files_.push_back("teapot.obj");
+    model_files_.push_back("maxplanck.obj");
+    model_files_.push_back("sphere.obj");
+    model_files_.push_back("teapot.obj");
 }
 
 
@@ -138,8 +138,9 @@ void ArtRenderApp::InitOpenGL() {
     gouraud_shaderprog_.AddFragmentShaderFromFile(Platform::FindFile("gouraud.frag", search_path_));
     gouraud_shaderprog_.LinkProgram();
     
-    diffuse_ramp_.InitFromFile(Platform::FindFile("standardDiffuse.png", search_path_));
-    specular_ramp_.InitFromFile(Platform::FindFile("standardSpecular.png", search_path_));
+    diffuse_ramp_.InitFromFile(Platform::FindFile("toonDiffuse.png", search_path_));
+    specular_ramp_.InitFromFile(Platform::FindFile("toonSpecular.png", search_path_));
+    surface_tex_.InitFromFile(Platform::FindFile("monalisa.png", search_path_));
 }
 
 
@@ -249,6 +250,7 @@ void ArtRenderApp::DrawUsingOpenGL() {
         gouraud_shaderprog_.SetUniform("Ia", Ia);
         gouraud_shaderprog_.SetUniform("Id", Id);
         gouraud_shaderprog_.SetUniform("Is", Is);
+        gouraud_shaderprog_.BindTexture("surface_tex", surface_tex_);
         meshes_[current_model_].Draw();
         gouraud_shaderprog_.StopProgram();
 		

@@ -76,6 +76,8 @@ private:
     Texture2D diffuse_ramp_;
     Texture2D specular_ramp_;
     
+    Texture2D surface_tex_;
+    
     // special program to use for drawing silhouette edges with the edge mesh
     ShaderProgram outline_shaderprog_;
 	

@@ -8,6 +8,8 @@
 in vec4 color;
 in vec2 tex_coords;
 
+uniform smapler2D surface_tex;
+
 // All fragment shaders are required to output a vec4 color.
 out vec4 final_color;
 
@@ -17,7 +19,7 @@ void main() {
     // For a Gouraud shader, there is nothing more to compute at this stage.  We
     // just output the input color.
     
-    vec4 tex_color = texture(surface_tex, texcoords);
+    vec4 tex_color = texture(surface_tex, tex_coords);
     
-    final_color = tex_color * color;
+    final_color = color * tex_color;
 }

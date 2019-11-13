@@ -13,5 +13,19 @@ uniform float s;
 
 
 void main() {
-    color = vec4(0,0,0,1);
+    vec3 v = position_in_eye_space;
+    
+    vec3 l = normalize(light_in_eye_space);
+    
+    vec3 e = normalize(-v);
+    
+    vec3 n = normalize(normal_in_eye_space);
+    
+    vec3 h = normalize(l + e);
+    
+    vec4 ambient = ka * Ia;
+    vec4 diffuse = kd * Id * max(dot(n, l), 0);
+    vec4 specular = ks * Is * pow(max(dot(n, h), 0), s);
+    
+    color = ambient + diffuse + specular;
 }
