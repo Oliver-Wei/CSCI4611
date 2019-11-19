@@ -26,10 +26,10 @@ ArtRenderApp::ArtRenderApp() : GraphicsApp(1024,768, "Art Render"),
     
     // NOTE: YOU CAN COMMENT OUT SOME OF THESE IF THE APP IS LOADING TOO SLOWLY
     // THE MODEL_FILES ARRAY JUST NEEDS TO HOLD AT LEAST ONE MODEL.
-//    model_files_.push_back("bunny.obj");
-//    model_files_.push_back("chamferedCube.obj");
-//    model_files_.push_back("cow.obj");
-//    model_files_.push_back("hippo.obj");
+    model_files_.push_back("bunny.obj");
+    model_files_.push_back("chamferedCube.obj");
+    model_files_.push_back("cow.obj");
+    model_files_.push_back("hippo.obj");
     model_files_.push_back("maxplanck.obj");
     model_files_.push_back("sphere.obj");
     model_files_.push_back("teapot.obj");
