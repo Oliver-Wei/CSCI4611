@@ -22,7 +22,7 @@ The color should be the sum of these three parameters. `color = ambient + diffus
 
 2. For art shading:
 
-I use the same way to calculate the basic parameters such as v, l, e, n, and h, while adding the texture to the diffuse and specular and keep ambient the same. Textures are added by texture().
+I use the same way to calculate the basic parameters such as v, l, e, n, and h, and use the intensity value as a lookup into a texture and use that to compute the final color.
 
     float diff_intensity = (dot(n,l) + 1) / 2;
     vec2 diffuse_texture = vec2(diff_intensity, 1.0 - diff_intensity);
