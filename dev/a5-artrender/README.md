@@ -12,6 +12,14 @@ The key parameters in the phong equation are listed below:
     n should be the unit vector of normal_in_eye_space
     h is the halfway vector
 
+In the program, they are defined as follows.
+
+    vec3 v = position_in_eye_space;
+    vec3 l = normalize(light_in_eye_space);
+    vec3 e = normalize(-v);
+    vec3 n = normalize(normal_in_eye_space);
+    vec3 h = normalize(l + e);
+
 According to equation, the ambient, diffuse, and specular could be calculated as:
 
     vec4 ambient = ka * Ia;
