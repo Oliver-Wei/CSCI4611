@@ -81,7 +81,7 @@ float t;
 // Call someFunction with output parameter
 someFunction(&t);
 
-// x now has the value set by someFunction
+// t now has the value set by someFunction
 ```
 
    Using the variables declared from the previous steps, write a code snippet
