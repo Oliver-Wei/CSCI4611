@@ -42,7 +42,8 @@ sky sphere! We're given the following information in this method:
 
 ```
 /* Hint: you may want to define an intermediate matrix here */
-Point3 eye = /* --- Fill in your answer here --- */
+Matrix4 camera_matrix = view_matrix.Inverse();
+Point3 eye = camera_matrix.ColumnToPoint3(3);
 ```
 
 2. Construct the mouse pointer location in world space. We consider the mouse
@@ -54,14 +55,14 @@ Point3 eye = /* --- Fill in your answer here --- */
    construct the world-space representation of the mouse location:
 
 ```
-Point3 mouseIn3d = /* --- Fill in your answer here --- */
+Point3 mouseIn3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, normalized_screen_pt);
 ```
 
 3. Create the ray from the eye through the world-space mouse location on the
    near plane. Use MinGfx's builtin `Ray` class for this.
 
 ```
-Ray eyeThroughMouse = /* --- Fill in your answer here --- */
+Ray eyeThroughMouse = ray(eye, (mouseIn3d - eye).ToUnit());
 ```
 
 4. Use the
@@ -74,11 +75,11 @@ Ray eyeThroughMouse = /* --- Fill in your answer here --- */
    pass in a *reference* to this variable. For example:
 
 ```
-// Declare output parameter `x`
-float x;
+// Declare output parameter `t`
+float t;
 
 // Call someFunction with output parameter
-someFunction(&x);
+someFunction(&t);
 
 // x now has the value set by someFunction
 ```
@@ -90,5 +91,5 @@ someFunction(&x);
 ```
 // Declare output parameters
 
-bool intersects = eyeThroughMouse.IntersectSphere(/* --- Fill parameters in --- */)
+bool intersects = eyeThroughMouse.IntersectSphere(Point3::Origin(), 1500.0, &t, point)
 ```
