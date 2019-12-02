@@ -62,7 +62,7 @@ Point3 mouseIn3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, normaliz
    near plane. Use MinGfx's builtin `Ray` class for this.
 
 ```
-Ray eyeThroughMouse = ray(eye, (mouseIn3d - eye).ToUnit());
+Ray eyeThroughMouse = Ray(eye, (mouseIn3d - eye).ToUnit());
 ```
 
 4. Use the
