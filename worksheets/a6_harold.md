@@ -91,5 +91,5 @@ someFunction(&t);
 ```
 // Declare output parameters
 
-bool intersects = eyeThroughMouse.IntersectSphere(Point3::Origin(), 1500.0, &t, point)
+bool intersects = eyeThroughMouse.IntersectSphere(Point3(0, 0, 0), 1500.0, &t, point)
 ```
