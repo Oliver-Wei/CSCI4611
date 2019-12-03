@@ -75,21 +75,21 @@ Ray eyeThroughMouse = Ray(eye, (mouseIn3d - eye).ToUnit());
    pass in a *reference* to this variable. For example:
 
 ```
-// Declare output parameter `t`
-float t;
+// Declare output parameter `x`
+float x;
 
 // Call someFunction with output parameter
-someFunction(&t);
+someFunction(&x);
 
-// t now has the value set by someFunction
+// x now has the value set by someFunction
 ```
 
    Using the variables declared from the previous steps, write a code snippet
    that captures the return value of the sphere intersection test, as well as
-   the `t` value and the `point` where the ray intersects the sphere.
+   the `x` value and the `point` where the ray intersects the sphere.
 
 ```
 // Declare output parameters
 
-bool intersects = eyeThroughMouse.IntersectSphere(Point3(0, 0, 0), 1500.0, &t, point)
+bool intersects = eyeThroughMouse.IntersectSphere(Point3(0, 0, 0), 1500.0, &x, point)
 ```
