@@ -165,7 +165,18 @@ void Ground::ReshapeGround(const Matrix4 &view_matrix, const Matrix4 &proj_matri
     // have a normal vector that points toward the camera and is parallel to the
     // ground plane.
 
+    Point2 Start = stroke2d[0];
+    Point3 Start_3D = Point3(0,0,0);
+    ScreenPtHitsGround(view_matrix, proj_matrix, Start, &Start_3D);
     
+    Point2 End = stroke2d[stroke2d.size() - 1];
+    Point3 End_3D = Point3(0,0,0);
+    ScreenPtHitsGround(view_matrix, proj_matrix, End, &End_3D);
+    
+    
+    Vector3 up = Vector3(0,1,0);
+    Vector3 plane_vector = End_3D - Start_3D;
+    Vector3 plane_Norm = (Vector3::Cross(plane_vector, up)).ToUnit();
     
     
     
@@ -173,7 +184,17 @@ void Ground::ReshapeGround(const Matrix4 &view_matrix, const Matrix4 &proj_matri
     // defined in step 1.
     
     
-    
+    std::vector<Point3> stroke_3d;
+    int point_num = stroke2d.size();
+    for (int i = 0; i < point_num; i++) {
+        Point3 pt3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, stroke2d[i]);
+        Ray ray(eye, (pt3d - eye).ToUnit());
+        float i_time;
+        Point3 plane_point = Point3(0,0,0);
+        ray.IntersectPlane(Start_3D, plane_Norm, &i_time, &plane_point);
+//        std::cout << plane_point << std::endl;
+        stroke_3d.push_back(plane_point);
+    }
     
     
     // 3. Loop through all of the vertices of the ground mesh, and adjust the
@@ -186,11 +207,33 @@ void Ground::ReshapeGround(const Matrix4 &view_matrix, const Matrix4 &proj_matri
         Point3 P = ground_mesh_.vertex(i); // original vertex
 
         // adjust P according to equations...
+        Ray ray(P, -plane_Norm);
+        float i_time;
+        Point3 closest_point = Point3(0,0,0);
+        if (ray.IntersectPlane(Start_3D, plane_Norm, &i_time, &closest_point) == true) {
+            ray.IntersectPlane(Start_3D, plane_Norm, &i_time, &closest_point);
+        }
+        else if (ray.IntersectPlane(Start_3D, -plane_Norm, &i_time, &closest_point) == true) {
+            ray.IntersectPlane(Start_3D, -plane_Norm, &i_time, &closest_point);
+        }
+        float distance = (closest_point - P).Length();
         
+        float height = hfunc(plane_Norm, stroke_3d, closest_point);
         
+        float P_y;
+        if (height != 0) {
+            float weight = 1 - pow((distance / 5.0),2.0);
+            if (weight < 0) {
+                weight = 0;
+            }
+            
+            P_y = (1-weight) * P[1] + weight * height;
+        }
+        else {
+            P_y = P[1];
+        }
         
-        
-        
+        P = Point3(P[0], P_y, P[2]);
         new_verts.push_back(P);
     }
     ground_mesh_.SetVertices(new_verts);

@@ -29,7 +29,14 @@ bool Sky::ScreenPtHitsSky(const Matrix4 &view_matrix, const Matrix4 &proj_matrix
                         const Point2 &normalized_screen_pt, Point3 *sky_point)
 {
     // TODO: Stitch together your worksheet implementation of this method
-    return true;
+    Matrix4 camera_matrix = view_matrix.Inverse();
+    Point3 eye = camera_matrix.ColumnToPoint3(3);
+    
+    Point3 pt3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, normalized_screen_pt);
+    Ray ray(eye, (pt3d - eye).ToUnit());
+    float t;
+    return ray.IntersectSphere(Point3::Origin(), 1500.0, &t, sky_point);
+//    return true;
 }
 
 
@@ -43,13 +50,25 @@ void Sky::AddSkyStroke(const Matrix4 &view_matrix, const Matrix4 &proj_matrix,
     // TODO: Create a new SkyStroke and add it to the strokes_ array.
 
 
-
-
-
-
-
-
-
+    Mesh m = stroke2d_mesh;
+    
+    std::vector<Point3> sky_points;
+    
+    int vertex_length = m.num_vertices();
+    
+    for (int i = 0; i < vertex_length; i++) {
+        Point3 final_point = Point3(0,0,0);
+        Point2 draw_vertex = Point2(m.Mesh::vertex(i)[0], m.Mesh::vertex(i)[1]);
+        ScreenPtHitsSky(view_matrix, proj_matrix, draw_vertex, &final_point);
+        sky_points.push_back(final_point);
+    }
+    
+    m.SetVertices(sky_points);
+    
+    SkyStroke Drawing_on_sky;
+    Drawing_on_sky.mesh = m;
+    Drawing_on_sky.color = stroke_color;
+    strokes_.push_back(Drawing_on_sky);
 
 }
 
