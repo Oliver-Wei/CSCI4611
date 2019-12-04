@@ -3,10 +3,9 @@ Yingxin Wei
 
 1. Drawing in the sky:
 
-Part 1: Projects the mouse position in normalized device coordinates to a 3D point on the "sky", which is really a huge sphere (radius = 1500) that the viewer is inside. This function should always return true since any screen point can successfully be projected onto the sphere. `sky_point` is set to the resulting 3D point. 
+Part 1: Projects the mouse position in normalized device coordinates to a 3D point on the "sky", which is really a huge sphere (radius = 1500) that the viewer is inside. This function should always return true since any screen point can successfully be projected onto the sphere. `sky_point` is set to the resulting 3D point.
 
-    bool Sky::ScreenPtHitsSky(const Matrix4 &view_matrix, const Matrix4 &proj_matrix,
-                            const Point2 &normalized_screen_pt, Point3 *sky_point)
+    bool Sky::ScreenPtHitsSky(const Matrix4 &view_matrix, const Matrix4 &proj_matrix, const Point2 &normalized_screen_pt, Point3 *sky_point)
     {
         
         Matrix4 camera_matrix = view_matrix.Inverse();
@@ -21,8 +20,7 @@ Part 1: Projects the mouse position in normalized device coordinates to a 3D poi
 
 Part 2: Creates a new sky stroke mesh by projecting each vertex of the 2D mesh onto the sky dome and saving the result as a new 3D mesh.
 
-    void Sky::AddSkyStroke(const Matrix4 &view_matrix, const Matrix4 &proj_matrix,
-                           const Mesh &stroke2d_mesh, const Color &stroke_color)
+    void Sky::AddSkyStroke(const Matrix4 &view_matrix, const Matrix4 &proj_matrix, const Mesh &stroke2d_mesh, const Color &stroke_color)
     {
 
         Mesh stroke3d_mesh = stroke2d_mesh;
