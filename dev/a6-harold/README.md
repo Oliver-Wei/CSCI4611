@@ -3,19 +3,52 @@ Yingxin Wei
 
 1. Drawing in the sky:
 
-As mentioned in Requirement 1, I create a mesh called m, to store the points of stroke on the screen. Since it guanranteed that the start point is on the sky, I directly loop all the 2d points that in the stroke to find their 3d positions on teh sky by using function ScreenPtHitsSky():
+Part 1: Projects the mouse position in normalized device coordinates to a 3D point on the "sky", which is really a huge sphere (radius = 1500) that the viewer is inside. This function should always return true since any screen point can successfully be projected onto the sphere. `sky_point` is set to the resulting 3D point. 
 
-    for (int i = 0; i < vertex_length; i++) {
-        Point3 final_point = Point3(0,0,0);
-        Point2 draw_vertex = Point2(m.Mesh::vertex(i)[0], m.Mesh::vertex(i)[1]);
-        ScreenPtHitsSky(view_matrix, proj_matrix, draw_vertex, &final_point);
-        sky_points.push_back(final_point);
+    bool Sky::ScreenPtHitsSky(const Matrix4 &view_matrix, const Matrix4 &proj_matrix,
+                            const Point2 &normalized_screen_pt, Point3 *sky_point)
+    {
         
+        Matrix4 camera_matrix = view_matrix.Inverse();
+        Point3 eye = camera_matrix.ColumnToPoint3(3);
+        
+        Point3 mouseIn3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, normalized_screen_pt);
+        Ray eyeThroughMouse = Ray(eye, (mouseIn3d - eye).ToUnit());
+        float t;
+        return eyeThroughMouse.IntersectSphere(Point3::Origin(), 1500.0, &t, sky_point);
+        
+    }
+
+Part 2: Creates a new sky stroke mesh by projecting each vertex of the 2D mesh onto the sky dome and saving the result as a new 3D mesh.
+
+    void Sky::AddSkyStroke(const Matrix4 &view_matrix, const Matrix4 &proj_matrix,
+                           const Mesh &stroke2d_mesh, const Color &stroke_color)
+    {
+
+        Mesh stroke3d_mesh = stroke2d_mesh;
+        std::vector<Point3> sky_points;
+        
+        for (int i = 0; i < stroke2d_mesh.num_vertices(); i++) {
+            Point3 point3d;
+            Point2 point2d = Point2(stroke2d_mesh.vertex(i)[0], stroke2d_mesh.vertex(i)[1]);
+            ScreenPtHitsSky(view_matrix, proj_matrix, point2d, &point3d);
+            sky_points.push_back(point3d);
+        }
+        
+        stroke3d_mesh.SetVertices(sky_points);
+        
+        SkyStroke sky_stroke_;
+        sky_stroke_.mesh = stroke3d_mesh;
+        sky_stroke_.color = stroke_color;
+        strokes_.push_back(sky_stroke_);
+
     }
 
 2. Editing the ground:
 
-To define a plane, I need to find 2 points and a vector as normal. Therefore, I firstly use ScreenPtHitsGround to find the 3d position of the starting and ending points of strokes:
+There are 3 major steps to the algorithm, outlined here:
+
+Step 1. Define a plane to project the stroke onto.  The first and last points of the stroke are projected onto the ground plane.  The plane passes through these two points on the ground.  The plane has a normal vector that points toward the camera and is parallel to the ground plane. In order to get the normal vector of correct direction, the plane vector is determined according to the relationship of start and end points of the stroke.
 
     Point2 Start = stroke2d[0];
     Point3 Start_3D = Point3(0,0,0);
@@ -25,57 +58,57 @@ To define a plane, I need to find 2 points and a vector as normal. Therefore, I 
     Point3 End_3D = Point3(0,0,0);
     ScreenPtHitsGround(view_matrix, proj_matrix, End, &End_3D);
 
-At the same time, the normal of the plane is calculated by the up vector:(0,1,0) and vector in the plane: End_3d - Start_3d:
-
+    Vector3 plane_vector;
+    if (End.x() > Start.x()){
+        plane_vector = End_3D - Start_3D;
+    }
+    else{
+        plane_vector = Start_3D - End_3D;
+    }
     Vector3 up = Vector3(0,1,0);
-    Vector3 plane_vector = End_3D - Start_3D;
-    Vector3 plane_Norm = (Vector3::Cross(plane_vector, up)).ToUnit();
+    Vector3 plane_norm = plane_vector.Cross(up).ToUnit();
 
-To project the point on the plane, I loop all the 2d points in strokes and use ray to find their 3d points. IntersectPlane() is used here:
 
-    std::vector<Point3> stroke_3d;
-    int point_num = stroke2d.size();
-    for (int i = 0; i < point_num; i++) {
-        Point3 pt3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, stroke2d[i]);
-        Ray ray(eye, (pt3d - eye).ToUnit());
+
+Step 2. Project the 2D stroke into 3D so that it lies on the "projection plane" defined in step 1.
+
+    std::vector<Point3> stroke3d;
+    for (int i = 0; i < stroke2d.size(); i++) {
+        Point3 mouseIn3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, stroke2d[i]);
+        Ray ray = Ray(eye, (mouseIn3d - eye).ToUnit());
         float i_time;
-        //        int i_tri;
-        Point3 plane_point = Point3(0,0,0);
-        ray.IntersectPlane(Start_3D, plane_Norm, &i_time, &plane_point);
-        std::cout << plane_point << std::endl;
-        stroke_3d.push_back(plane_point);
+        Point3 point3d;
+        ray.IntersectPlane(Start_3D, plane_norm, &i_time, &point3d);
+        stroke3d.push_back(point3d);
     }
 
-To find the closest point of a mesh point on the groud to the plane, I use ray.IntersectPlane() to find it. In order to make a complete mountain based on drawing, I use if statement to determine the direction of ray:
 
-    if (ray.IntersectPlane(Start_3D, plane_Norm, &i_time, &closest_point) == true) {
-        ray.IntersectPlane(Start_3D, plane_Norm, &i_time, &closest_point);
-    }
-    else if (ray.IntersectPlane(Start_3D, -plane_Norm, &i_time, &closest_point) == true) {
-        ray.IntersectPlane(Start_3D, -plane_Norm, &i_time, &closest_point);
-    }
+Step 3. Loop through all of the vertices of the ground mesh, and adjust the height of each based on the equations in section 4.5 of the paper.
 
-This guaranteed that the points in the front of the plane and behind the plane could be changed as a mountain.
+    std::vector<Point3> new_verts;
+    for (int i=0; i<ground_mesh_.num_vertices(); i++) {
+        
+        Point3 P = ground_mesh_.vertex(i); // original vertex
+        
+        // adjust P according to equations...
 
-Finally, the y parameters are calculated based on the equations:
-
-    float height = hfunc(plane_Norm, stroke_3d, closest_point);
-
-    float P_y;
-    if (height != 0) {
-        float weight = 1 - pow((distance / 5.0),2.0);
-        if (weight < 0) {
-            weight = 0;
+        Point3 P_in_plane = P.ClosestPointOnPlane(Start_3D, plane_norm);
+        float d = P.DistanceToPlane(Start_3D, plane_norm);
+        float h = hfunc(plane_norm, stroke3d, P_in_plane);
+        float P_y;
+        if (h != 0){
+            float w_d = 1-pow((d/5),2);
+            if (w_d < 0){
+                w_d = 0;
+            }
+            P_y = (1-w_d) * P.y() + w_d * h;
         }
-
-        P_y = (1-weight) * P[1] + weight * height;
+        else{
+            P_y = P.y();
+        }
+        P = Point3(P.x(), P_y, P.z());
+        new_verts.push_back(P);
     }
-    else {
-        P_y = P[1];
-    }
-
-    P = Point3(P[0], P_y, P[2]);
-    new_verts.push_back(P);
 
 
 

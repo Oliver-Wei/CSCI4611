@@ -32,11 +32,10 @@ bool Sky::ScreenPtHitsSky(const Matrix4 &view_matrix, const Matrix4 &proj_matrix
     Matrix4 camera_matrix = view_matrix.Inverse();
     Point3 eye = camera_matrix.ColumnToPoint3(3);
     
-    Point3 pt3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, normalized_screen_pt);
-    Ray ray(eye, (pt3d - eye).ToUnit());
+    Point3 mouseIn3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, normalized_screen_pt);
+    Ray eyeThroughMouse = Ray(eye, (mouseIn3d - eye).ToUnit());
     float t;
-    return ray.IntersectSphere(Point3::Origin(), 1500.0, &t, sky_point);
-//    return true;
+    return eyeThroughMouse.IntersectSphere(Point3::Origin(), 1500.0, &t, sky_point);
 }
 
 
@@ -50,25 +49,23 @@ void Sky::AddSkyStroke(const Matrix4 &view_matrix, const Matrix4 &proj_matrix,
     // TODO: Create a new SkyStroke and add it to the strokes_ array.
 
 
-    Mesh m = stroke2d_mesh;
+    Mesh stroke3d_mesh = stroke2d_mesh;
     
     std::vector<Point3> sky_points;
     
-    int vertex_length = m.num_vertices();
-    
-    for (int i = 0; i < vertex_length; i++) {
-        Point3 final_point = Point3(0,0,0);
-        Point2 draw_vertex = Point2(m.Mesh::vertex(i)[0], m.Mesh::vertex(i)[1]);
-        ScreenPtHitsSky(view_matrix, proj_matrix, draw_vertex, &final_point);
-        sky_points.push_back(final_point);
+    for (int i = 0; i < stroke2d_mesh.num_vertices(); i++) {
+        Point3 point3d;
+        Point2 point2d = Point2(stroke2d_mesh.vertex(i)[0], stroke2d_mesh.vertex(i)[1]);
+        ScreenPtHitsSky(view_matrix, proj_matrix, point2d, &point3d);
+        sky_points.push_back(point3d);
     }
     
-    m.SetVertices(sky_points);
+    stroke3d_mesh.SetVertices(sky_points);
     
-    SkyStroke Drawing_on_sky;
-    Drawing_on_sky.mesh = m;
-    Drawing_on_sky.color = stroke_color;
-    strokes_.push_back(Drawing_on_sky);
+    SkyStroke sky_stroke_;
+    sky_stroke_.mesh = stroke3d_mesh;
+    sky_stroke_.color = stroke_color;
+    strokes_.push_back(sky_stroke_);
 
 }
 

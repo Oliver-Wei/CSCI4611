@@ -173,10 +173,15 @@ void Ground::ReshapeGround(const Matrix4 &view_matrix, const Matrix4 &proj_matri
     Point3 End_3D = Point3(0,0,0);
     ScreenPtHitsGround(view_matrix, proj_matrix, End, &End_3D);
     
-    
+    Vector3 plane_vector;
+    if (End.x() > Start.x()){
+        plane_vector = End_3D - Start_3D;
+    }
+    else{
+        plane_vector = Start_3D - End_3D;
+    }
     Vector3 up = Vector3(0,1,0);
-    Vector3 plane_vector = End_3D - Start_3D;
-    Vector3 plane_Norm = (Vector3::Cross(plane_vector, up)).ToUnit();
+    Vector3 plane_norm = plane_vector.Cross(up).ToUnit();
     
     
     
@@ -184,16 +189,14 @@ void Ground::ReshapeGround(const Matrix4 &view_matrix, const Matrix4 &proj_matri
     // defined in step 1.
     
     
-    std::vector<Point3> stroke_3d;
-    int point_num = stroke2d.size();
-    for (int i = 0; i < point_num; i++) {
-        Point3 pt3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, stroke2d[i]);
-        Ray ray(eye, (pt3d - eye).ToUnit());
+    std::vector<Point3> stroke3d;
+    for (int i = 0; i < stroke2d.size(); i++) {
+        Point3 mouseIn3d = GfxMath::ScreenToNearPlane(view_matrix, proj_matrix, stroke2d[i]);
+        Ray ray = Ray(eye, (mouseIn3d - eye).ToUnit());
         float i_time;
-        Point3 plane_point = Point3(0,0,0);
-        ray.IntersectPlane(Start_3D, plane_Norm, &i_time, &plane_point);
-//        std::cout << plane_point << std::endl;
-        stroke_3d.push_back(plane_point);
+        Point3 point3d;
+        ray.IntersectPlane(Start_3D, plane_norm, &i_time, &point3d);
+        stroke3d.push_back(point3d);
     }
     
     
@@ -202,40 +205,32 @@ void Ground::ReshapeGround(const Matrix4 &view_matrix, const Matrix4 &proj_matri
     // repeated in the assignment handout.  The equations rely upon a function
     // h(), and we have implemented that for you as hfunc() defined above in
     // this file.  The basic structure of the loop you will need is here:
+    
     std::vector<Point3> new_verts;
     for (int i=0; i<ground_mesh_.num_vertices(); i++) {
+        
         Point3 P = ground_mesh_.vertex(i); // original vertex
-
+        
         // adjust P according to equations...
-        Ray ray(P, -plane_Norm);
-        float i_time;
-        Point3 closest_point = Point3(0,0,0);
-        if (ray.IntersectPlane(Start_3D, plane_Norm, &i_time, &closest_point) == true) {
-            ray.IntersectPlane(Start_3D, plane_Norm, &i_time, &closest_point);
-        }
-        else if (ray.IntersectPlane(Start_3D, -plane_Norm, &i_time, &closest_point) == true) {
-            ray.IntersectPlane(Start_3D, -plane_Norm, &i_time, &closest_point);
-        }
-        float distance = (closest_point - P).Length();
-        
-        float height = hfunc(plane_Norm, stroke_3d, closest_point);
-        
+
+        Point3 P_in_plane = P.ClosestPointOnPlane(Start_3D, plane_norm);
+        float d = P.DistanceToPlane(Start_3D, plane_norm);
+        float h = hfunc(plane_norm, stroke3d, P_in_plane);
         float P_y;
-        if (height != 0) {
-            float weight = 1 - pow((distance / 5.0),2.0);
-            if (weight < 0) {
-                weight = 0;
+        if (h != 0){
+            float w_d = 1-pow((d/5),2);
+            if (w_d < 0){
+                w_d = 0;
             }
-            
-            P_y = (1-weight) * P[1] + weight * height;
+            P_y = (1-w_d) * P.y() + w_d * h;
         }
-        else {
-            P_y = P[1];
+        else{
+            P_y = P.y();
         }
-        
-        P = Point3(P[0], P_y, P[2]);
+        P = Point3(P.x(), P_y, P.z());
         new_verts.push_back(P);
     }
+    
     ground_mesh_.SetVertices(new_verts);
     ground_mesh_.CalcPerVertexNormals();
     ground_mesh_.UpdateGPUMemory();

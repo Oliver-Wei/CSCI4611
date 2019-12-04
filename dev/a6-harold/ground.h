@@ -5,6 +5,7 @@
 #define GROUND_H_
 
 #include <mingfx.h>
+#include <algorithm> 
 using namespace mingfx;
 
 #include "edge_mesh.h"
